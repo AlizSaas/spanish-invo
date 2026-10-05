@@ -66,7 +66,7 @@
   "vars": {
     "BETTER_AUTH_URL": "https://facturafacilapp.com",
     "CLOUDFLARE_ACCOUNT_ID": "04cb99e92f7e20dd5cafcdf75be555bc",
-    "EMAIL_FROM": "no-reply@alizmail.com",
+    "EMAIL_FROM": "no-reply@facturafacilapp.com",
     "APP_NAME": "Factura Fácil",
     "DEFAULT_TIMEZONE": "America/Chicago",
     // AI assistant model (OpenAI). The key itself is the OPENAIAPIKEY secret.
