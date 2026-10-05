@@ -6,9 +6,11 @@ import {
   Clock,
   ExternalLink,
   FileText,
+  TrendingUp,
   Users,
   XCircle,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type {
   AssistantToolName,
   AssistantToolOutputPart,
@@ -125,6 +127,20 @@ function ToolOutputView({
         <ClientBalanceCard data={part.output} onNavigate={onNavigate} />
       ) : (
         <Empty text={`${t.assistant.noResults}: ${part.output.clientName}`} />
+      )
+    case 'tool-getRevenueReport':
+      return <RevenueCard data={part.output} onNavigate={onNavigate} />
+    case 'tool-listClients':
+      return part.output.clients.length === 0 ? (
+        <Empty text={t.assistant.noResults} />
+      ) : (
+        <ClientBalancesList data={part.output} onNavigate={onNavigate} />
+      )
+    case 'tool-getRecentActivity':
+      return part.output.events.length === 0 ? (
+        <Empty text={t.assistant.noResults} />
+      ) : (
+        <ActivityList data={part.output} onNavigate={onNavigate} />
       )
     default:
       return null
@@ -318,22 +334,7 @@ function SummaryTiles({
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
         {tiles.map((tile) => (
-          <div key={tile.label} className="rounded-lg border p-3">
-            <div className="text-muted-foreground flex items-center justify-between text-xs">
-              <span>{tile.label}</span>
-              <tile.icon
-                className={cn(
-                  'size-3.5',
-                  tile.tone === 'serious' && 'text-destructive',
-                  tile.tone === 'good' && 'text-primary',
-                )}
-              />
-            </div>
-            <div className="mt-1 text-lg font-bold tracking-tight tabular-nums">
-              {tile.value}
-            </div>
-            <div className="text-muted-foreground text-xs">{tile.sub}</div>
-          </div>
+          <StatTile key={tile.label} {...tile} />
         ))}
       </div>
       {data.mostUrgentOverdue.length > 0 && (
@@ -495,5 +496,253 @@ function DocumentDetailCard({
         )}
       </div>
     </div>
+  )
+}
+
+function StatTile({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  tone,
+}: {
+  label: string
+  value: string
+  sub: string
+  icon: LucideIcon
+  tone: 'neutral' | 'good' | 'serious'
+}) {
+  return (
+    <div className="rounded-lg border p-3">
+      <div className="text-muted-foreground flex items-center justify-between text-xs">
+        <span>{label}</span>
+        <Icon
+          className={cn(
+            'size-3.5',
+            tone === 'serious' && 'text-destructive',
+            tone === 'good' && 'text-primary',
+          )}
+        />
+      </div>
+      <div className="mt-1 text-lg font-bold tracking-tight tabular-nums">
+        {value}
+      </div>
+      <div className="text-muted-foreground text-xs">{sub}</div>
+    </div>
+  )
+}
+
+type RevenueOutput = Extract<
+  AssistantToolOutputPart,
+  { type: 'tool-getRevenueReport' }
+>['output']
+
+function RevenueCard({
+  data,
+  onNavigate,
+}: {
+  data: RevenueOutput
+  onNavigate?: () => void
+}) {
+  const t = useT()
+  const { money, date } = useFmt()
+  const tiles = [
+    {
+      label: t.assistant.collected,
+      value: money(data.collected.total, data.currency),
+      sub: `${data.collected.count} ${t.dashboard.invoicesCount}`,
+      icon: CheckCircle2,
+      tone: 'good' as const,
+    },
+    {
+      label: t.assistant.invoiced,
+      value: money(data.invoiced.total, data.currency),
+      sub: `${data.invoiced.count} ${t.dashboard.invoicesCount}`,
+      icon: FileText,
+      tone: 'neutral' as const,
+    },
+    {
+      label: t.assistant.averageInvoice,
+      value: money(data.averagePaidInvoice, data.currency),
+      sub: `${date(data.period.from)} – ${date(data.period.to)}`,
+      icon: TrendingUp,
+      tone: 'neutral' as const,
+    },
+  ]
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {tiles.map((tile) => (
+          <StatTile key={tile.label} {...tile} />
+        ))}
+      </div>
+      {data.breakdown.length > 1 && (
+        <ul className="divide-y rounded-lg border text-xs">
+          {data.breakdown.map((b) => (
+            <li
+              key={b.period}
+              className="flex items-center justify-between gap-3 px-3 py-1.5"
+            >
+              <span className="text-muted-foreground tabular-nums">
+                {b.period}
+              </span>
+              <span className="text-muted-foreground tabular-nums">
+                {t.assistant.invoiced}: {money(b.invoiced, data.currency)}
+              </span>
+              <span className="font-medium tabular-nums">
+                {money(b.collected, data.currency)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {data.topClients.length > 0 && (
+        <>
+          <div className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+            {t.assistant.topClients}
+          </div>
+          <ul className="divide-y overflow-hidden rounded-lg border">
+            {data.topClients.map((c) => (
+              <li key={c.clientId}>
+                <Link
+                  to="/clients/$clientId"
+                  params={{ clientId: c.clientId }}
+                  onClick={onNavigate}
+                  className="hover:bg-accent/40 flex items-center gap-3 px-3 py-2 text-sm transition-colors"
+                >
+                  <span className="min-w-0 flex-1 truncate font-medium">
+                    {c.name}
+                  </span>
+                  <span className="text-muted-foreground text-xs tabular-nums">
+                    {c.count} {t.dashboard.invoicesCount}
+                  </span>
+                  <span className="font-semibold tabular-nums">
+                    {money(c.collected, data.currency)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
+type ClientsOutput = Extract<
+  AssistantToolOutputPart,
+  { type: 'tool-listClients' }
+>['output']
+
+function ClientBalancesList({
+  data,
+  onNavigate,
+}: {
+  data: ClientsOutput
+  onNavigate?: () => void
+}) {
+  const t = useT()
+  const { money } = useFmt()
+  return (
+    <div className="space-y-2">
+      <div className="text-muted-foreground text-xs">
+        {t.assistant.showing} {data.shown} {t.assistant.of} {data.totalClients}{' '}
+        {t.assistant.clientsCount}
+      </div>
+      <ul className="divide-y overflow-hidden rounded-lg border">
+        {data.clients.map((c) => (
+          <li key={c.id}>
+            <Link
+              to="/clients/$clientId"
+              params={{ clientId: c.id }}
+              onClick={onNavigate}
+              className="hover:bg-accent/40 flex items-center gap-3 px-3 py-2 transition-colors"
+            >
+              <Users className="text-muted-foreground size-4 shrink-0" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium">
+                  {c.name}
+                  {c.company ? (
+                    <span className="text-muted-foreground font-normal">
+                      {' '}
+                      · {c.company}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="text-muted-foreground block truncate text-xs">
+                  {c.documentCount} {t.dashboard.invoicesCount} ·{' '}
+                  {t.assistant.paid}: {money(c.paid, data.currency)}
+                </span>
+              </span>
+              <span
+                className={cn(
+                  'font-semibold tabular-nums',
+                  c.outstanding > 0 && 'text-destructive',
+                )}
+              >
+                {money(c.outstanding, data.currency)}
+              </span>
+              <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+type ActivityOutput = Extract<
+  AssistantToolOutputPart,
+  { type: 'tool-getRecentActivity' }
+>['output']
+
+function ActivityList({
+  data,
+  onNavigate,
+}: {
+  data: ActivityOutput
+  onNavigate?: () => void
+}) {
+  const t = useT()
+  const { money } = useFmt()
+  const { settings } = useAppContext()
+  const locale = useUiStore((s) => s.locale)
+  const when = new Intl.DateTimeFormat(locale === 'es' ? 'es-US' : 'en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: settings.timezone,
+  })
+  const labels = t.docs.detail.events as Partial<Record<string, string>>
+  return (
+    <ul className="divide-y overflow-hidden rounded-lg border">
+      {data.events.map((e) => (
+        <li key={e.id}>
+          <DocLink
+            id={e.docId}
+            type={e.docType}
+            className="hover:bg-accent/40 flex items-center gap-3 px-3 py-2 transition-colors"
+          >
+            <span onClick={onNavigate} className="contents">
+              <Clock className="text-muted-foreground size-4 shrink-0" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm">
+                  <span className="font-medium">
+                    {labels[e.type] ?? e.type}
+                  </span>{' '}
+                  · {e.number} · {e.clientName}
+                </span>
+                <span className="text-muted-foreground block text-xs">
+                  {when.format(new Date(e.at))}
+                </span>
+              </span>
+              <span className="font-semibold tabular-nums">
+                {money(e.total, e.currency)}
+              </span>
+              <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+            </span>
+          </DocLink>
+        </li>
+      ))}
+    </ul>
   )
 }

@@ -36,7 +36,8 @@ export const Route = createFileRoute('/api/settings/logo')({
         if (file.size > LOGO_MAX_BYTES)
           return Response.json({ error: 'TOO_LARGE' }, { status: 413 })
 
-        const logoUrl = await putLogo(getEnv().STORAGE, user.id, file)
+        const env = getEnv()
+        const logoUrl = await putLogo(env.STORAGE, user.id, file, env.IMAGES)
         await getDb()
           .update(settings)
           .set({ logoUrl })

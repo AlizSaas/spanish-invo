@@ -15,4 +15,6 @@ export interface LegalDoc {
 export interface LegalContent {
   privacy: LegalDoc
   terms: LegalDoc
+  /** Public SMS opt-in disclosure required by carriers / Twilio registration. */
+  smsConsent: LegalDoc
 }

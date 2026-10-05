@@ -131,7 +131,8 @@ export const es = {
     businessPhoneHelp:
       'Aparece en la factura para que el cliente te pueda contactar.',
     logo: 'Logo',
-    logoHelp: 'PNG o JPG, máximo 2 MB. Lo puedes agregar después.',
+    logoHelp:
+      'PNG, JPG o WEBP hasta 10 MB; lo ajustamos automáticamente. Lo puedes agregar después.',
     uploadLogo: 'Subir logo',
     changeLogo: 'Cambiar logo',
     removeLogo: 'Quitar',
@@ -170,7 +171,7 @@ export const es = {
     appLanguage: 'Idioma de la aplicación',
     saved: 'Cambios guardados',
     logoUploaded: 'Logo actualizado',
-    logoTooLarge: 'El logo debe pesar menos de 2 MB',
+    logoTooLarge: 'El logo debe pesar menos de 10 MB',
     logoBadType: 'Solo se permiten imágenes PNG, JPG o WEBP',
   },
   clients: {
@@ -351,6 +352,7 @@ export const es = {
       sms: 'Enviar por SMS',
       smsHelp: 'Para clientes sin WhatsApp. Se envía desde nuestro número.',
       smsSent: 'SMS enviado',
+      messageLanguage: 'Idioma del mensaje',
       smsTooLong:
         'El SMS es demasiado largo (máximo 480 caracteres). Acórtalo o envíalo por WhatsApp.',
       smsDailyLimit:
@@ -401,11 +403,11 @@ export const es = {
     emptyBody:
       'Pregunta con tus palabras. Busco en tus clientes, facturas y presupuestos y te muestro los resultados.',
     suggestions: [
-      '¿Cuánto me deben en total?',
+      '¿Cuánto cobré hoy?',
+      '¿Quién me debe dinero?',
       '¿Qué facturas están vencidas?',
-      '¿Qué le he facturado a María García?',
-      'Resumen de este mes',
-      'Presupuestos sin convertir',
+      '¿Cuánto facturé este mes?',
+      '¿Alguien abrió mis facturas esta semana?',
     ],
     tools: {
       searchClients: 'Buscar clientes',
@@ -414,7 +416,15 @@ export const es = {
       getSummary: 'Resumen del negocio',
       getClientBalance: 'Saldo del cliente',
       searchDocumentsByMeaning: 'Búsqueda por descripción',
+      getRevenueReport: 'Reporte de ingresos',
+      listClients: 'Clientes y saldos',
+      getRecentActivity: 'Actividad reciente',
     },
+    collected: 'Cobrado',
+    invoiced: 'Facturado',
+    averageInvoice: 'Promedio por factura',
+    topClients: 'Mejores clientes',
+    clientsCount: 'clientes',
     history: 'Historial',
     historyEmpty: 'Todavía no hay conversaciones guardadas.',
     deleteConversation: 'Eliminar conversación',
@@ -469,6 +479,7 @@ export const es = {
   legal: {
     privacy: 'Política de privacidad',
     terms: 'Términos de servicio',
+    sms: 'Consentimiento SMS',
     contact: 'Contacto',
     updated: 'Última actualización',
     /** {terms} and {privacy} are rendered as links. */

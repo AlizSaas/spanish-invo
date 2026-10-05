@@ -190,4 +190,61 @@ export const legalEs: LegalContent = {
       },
     ],
   },
+  smsConsent: {
+    title: 'Consentimiento para mensajes SMS',
+    updated: '5 de octubre de 2026',
+    intro:
+      'Factura Fácil permite a los negocios que usan la plataforma enviar facturas y presupuestos a sus clientes por SMS. Esta página explica qué mensajes se envían, cómo se obtiene tu consentimiento y cómo darte de baja.',
+    sections: [
+      {
+        heading: 'Quién envía los mensajes',
+        body: [
+          'Los mensajes se envían en nombre del negocio que te atiende (por ejemplo, tu jardinero, limpiador o contratista) a través de la plataforma Factura Fácil, operada en facturafacilapp.com. Factura Fácil no envía publicidad propia por SMS.',
+        ],
+      },
+      {
+        heading: 'Cómo se obtiene tu consentimiento',
+        body: [
+          'El negocio te pide tu número de teléfono al contratar un servicio y te informa que lo usará para enviarte tus facturas o presupuestos. Al dar tu número con ese fin aceptas recibir esos mensajes. El negocio es responsable de registrar solo números de clientes que hayan aceptado.',
+        ],
+      },
+      {
+        heading: 'Qué mensajes recibirás',
+        body: [
+          'Mensajes transaccionales relacionados con tu servicio: una factura o presupuesto con un enlace para verlo y descargar el PDF y, ocasionalmente, un recordatorio de pago.',
+          'Ejemplo: "Hola, le comparto la factura INV-0042 de Jardinería López por $350.00. Puede verla y descargar el PDF aquí: https://facturafacilapp.com/i/… Vence el 18 oct. ¡Gracias!"',
+        ],
+      },
+      {
+        heading: 'Frecuencia',
+        body: [
+          'Depende de los servicios que contrates. Normalmente es un mensaje por factura o presupuesto, más algún recordatorio. No hay envíos recurrentes automáticos.',
+        ],
+      },
+      {
+        heading: 'Costos',
+        body: [
+          'Pueden aplicarse tarifas de mensajes y datos de tu operador. Factura Fácil no te cobra por recibir mensajes.',
+        ],
+      },
+      {
+        heading: 'Cómo darte de baja',
+        body: [
+          'Responde STOP a cualquier mensaje para dejar de recibir SMS de ese número. Recibirás una confirmación y no te enviaremos más mensajes. También puedes pedirle al negocio que te contacte por otro medio.',
+        ],
+      },
+      {
+        heading: 'Ayuda',
+        body: [
+          'Responde HELP para recibir información de contacto, o escríbenos a {email}.',
+        ],
+      },
+      {
+        heading: 'Privacidad',
+        body: [
+          'Tu número de teléfono se usa únicamente para entregar estos mensajes. No lo vendemos ni lo compartimos con terceros con fines de marketing. Consulta nuestra Política de privacidad para más detalles.',
+        ],
+      },
+    ],
+  },
 }

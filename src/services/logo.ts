@@ -1,13 +1,52 @@
 // Business logo storage in R2 (binding STORAGE). One object per owner.
+//
+// Uploads are normalized on the way in: the client already downsizes large
+// photos (see components/settings/logo-uploader.tsx) and the Worker runs the
+// result through Cloudflare Images (binding IMAGES) so what lands in R2 is a
+// small WebP no wider than 512px. If the Images binding is unavailable (local
+// dev without it) the original bytes are stored unchanged.
 
 const LOGO_KEY = (userId: string) => `logos/${userId}`
-export const LOGO_MAX_BYTES = 2 * 1024 * 1024
+/** Server-side ceiling after the client resize; 5 MB leaves room for huge PNG logos. */
+export const LOGO_MAX_BYTES = 5 * 1024 * 1024
 export const LOGO_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp'])
+const LOGO_MAX_SIDE = 512
 
-export async function putLogo(bucket: R2Bucket, userId: string, file: File) {
-  await bucket.put(LOGO_KEY(userId), await file.arrayBuffer(), {
+export async function putLogo(
+  bucket: R2Bucket,
+  userId: string,
+  file: File,
+  images?: ImagesBinding,
+) {
+  let bytes: ArrayBuffer = await file.arrayBuffer()
+  let contentType = file.type
+
+  if (images) {
+    try {
+      const result = await images
+        .input(new Blob([bytes]).stream())
+        .transform({
+          width: LOGO_MAX_SIDE,
+          height: LOGO_MAX_SIDE,
+          fit: 'scale-down',
+        })
+        .output({ format: 'image/webp', quality: 85 })
+      bytes = await result.response().arrayBuffer()
+      contentType = result.contentType()
+    } catch (err) {
+      console.warn(
+        JSON.stringify({
+          level: 'warn',
+          msg: 'logo transform skipped',
+          error: err instanceof Error ? err.message : String(err),
+        }),
+      )
+    }
+  }
+
+  await bucket.put(LOGO_KEY(userId), bytes, {
     httpMetadata: {
-      contentType: file.type,
+      contentType,
       cacheControl: 'public, max-age=3600',
     },
   })

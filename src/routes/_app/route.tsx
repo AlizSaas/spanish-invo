@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Link,
   Outlet,
@@ -39,20 +40,28 @@ function AppLayout() {
   const t = useT()
   const location = useLocation()
   const setLocale = useUiStore((s) => s.setLocale)
-  const storeLocale = useUiStore((s) => s.locale)
 
-  // The account's saved language is authoritative: whenever the browser store
-  // drifts (persisted value from another session, a failed toggle), snap back.
+  // Live view of the settings row. The route context is a snapshot taken in
+  // beforeLoad, so the sidebar's language switch (which updates the query
+  // cache optimistically) would otherwise not re-render until navigation.
+  const { data: live } = useQuery({
+    ...settingsQueryOptions(),
+    initialData: settings,
+    staleTime: 30_000,
+  })
+  const accountLocale = live.locale
+
+  // The account's saved language is authoritative inside the signed-in shell.
   useEffect(() => {
-    if (storeLocale !== settings.locale) setLocale(settings.locale)
-  }, [storeLocale, settings.locale, setLocale])
+    setLocale(accountLocale)
+  }, [accountLocale, setLocale])
 
   const isBuilder =
     location.pathname.endsWith('/new') || location.pathname.endsWith('/edit')
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} settings={settings} />
+      <AppSidebar user={user} settings={live} />
       <SidebarInset>
         <header className="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-3 backdrop-blur md:h-16 md:px-6">
           <SidebarTrigger className="-ml-1" />

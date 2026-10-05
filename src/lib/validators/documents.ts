@@ -68,6 +68,12 @@ export const recordShareSchema = z.object({
   message: z.string().trim().max(1200).optional(),
 })
 
+/** Share dialog: the message defaults to the document's language; the owner may switch it. */
+export const prepareShareSchema = z.object({
+  id: z.string().min(1),
+  language: z.enum(LANGUAGES).optional(),
+})
+
 export const publicTokenSchema = z.object({
   token: z.string().min(8).max(128),
   /** Owner preview: don't log a "viewed" event or flip the status */

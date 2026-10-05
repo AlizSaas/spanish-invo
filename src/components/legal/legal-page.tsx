@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import type { LegalContent } from '@/content/legal'
 import { Logo } from '@/components/brand/logo'
 import { LanguageToggle } from '@/components/language-toggle'
 import { SiteFooter } from '@/components/site-footer'
@@ -7,8 +8,8 @@ import { SUPPORT_EMAIL } from '@/lib/constants'
 import { useT } from '@/lib/i18n'
 import { useUiStore } from '@/stores/ui-store'
 
-/** Renders the Privacy Policy or Terms of Service in the current UI language. */
-export function LegalPage({ doc }: { doc: 'privacy' | 'terms' }) {
+/** Renders one legal document (privacy, terms, SMS consent) in the current UI language. */
+export function LegalPage({ doc }: { doc: keyof LegalContent }) {
   const t = useT()
   const locale = useUiStore((s) => s.locale)
   const content = getLegal(locale)[doc]

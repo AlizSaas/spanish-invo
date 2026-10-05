@@ -21,6 +21,9 @@ export function SiteFooter({ className }: { className?: string }) {
         <Link to="/terms" className="hover:text-foreground">
           {t.legal.terms}
         </Link>
+        <Link to="/sms-consent" className="hover:text-foreground">
+          {t.legal.sms}
+        </Link>
         <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-foreground">
           {t.legal.contact}
         </a>

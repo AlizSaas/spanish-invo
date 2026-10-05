@@ -71,7 +71,9 @@ wrangler secret put TWILIO_FROM_NUMBER
 - [ ] **Twilio**: restrict Geo Permissions to the countries you actually serve and set a
       spend alert. The app already caps SMS at 480 characters and 50 per account per day
       and forces the invoice link into every message, but the account-level limits are
-      your backstop.
+      your backstop. For A2P 10DLC or toll-free verification, use
+      `https://facturafacilapp.com/sms-consent` as the opt-in / consent URL and
+      the sample message shown on that page.
 
 ### Security review notes (2026-10-05)
 
@@ -106,6 +108,9 @@ Still open, by design or product decision:
       `/api/*` include `X-Robots-Tag: noindex`.
 - [ ] Sign up → welcome email arrives (Workflow); password reset email arrives.
 - [ ] Share an invoice: the WhatsApp message and PDF link use `https://facturafacilapp.com/i/…`.
+- [ ] Upload a logo in Settings. Worker logs should not show `logo transform skipped`; if
+      they do, enable Cloudflare Images for the account (Images → Get started, 5,000 free
+      transformations a month). Logos still work without it, just not resized to WebP.
 - [ ] Google Search Console: add the domain property (DNS TXT), submit `/sitemap.xml`.
 
 ## 8. Dependencies

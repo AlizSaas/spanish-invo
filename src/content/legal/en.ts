@@ -186,4 +186,59 @@ export const legalEn: LegalContent = {
       },
     ],
   },
+  smsConsent: {
+    title: 'SMS Messaging Consent',
+    updated: 'October 5, 2026',
+    intro:
+      'Factura Fácil lets the businesses that use the platform send invoices and estimates to their customers by SMS. This page explains what messages are sent, how your consent is obtained and how to opt out.',
+    sections: [
+      {
+        heading: 'Who sends the messages',
+        body: [
+          'Messages are sent on behalf of the business that serves you (for example your landscaper, cleaner or contractor) through the Factura Fácil platform, operated at facturafacilapp.com. Factura Fácil does not send its own advertising by SMS.',
+        ],
+      },
+      {
+        heading: 'How your consent is obtained',
+        body: [
+          'The business asks for your phone number when you hire a service and tells you it will be used to send your invoices or estimates. By providing your number for that purpose you agree to receive those messages. The business is responsible for only entering numbers of customers who have agreed.',
+        ],
+      },
+      {
+        heading: 'What messages you will receive',
+        body: [
+          'Transactional messages about your service: an invoice or estimate with a link to view it and download the PDF, and occasionally a payment reminder.',
+          'Example: "Hi, here is invoice INV-0042 from Jardinería López for $350.00. You can view it and download the PDF here: https://facturafacilapp.com/i/… Due Oct 18. Thank you!"',
+        ],
+      },
+      {
+        heading: 'Message frequency',
+        body: [
+          'Frequency depends on the services you hire. Typically one message per invoice or estimate, plus an occasional reminder. There are no automatic recurring messages.',
+        ],
+      },
+      {
+        heading: 'Cost',
+        body: [
+          'Message and data rates may apply. Factura Fácil does not charge you for receiving messages.',
+        ],
+      },
+      {
+        heading: 'How to opt out',
+        body: [
+          'Reply STOP to any message to stop receiving SMS from that number. You will get a confirmation and no further messages will be sent. You can also ask the business to contact you another way.',
+        ],
+      },
+      {
+        heading: 'Help',
+        body: ['Reply HELP for contact information, or write to {email}.'],
+      },
+      {
+        heading: 'Privacy',
+        body: [
+          'Your phone number is used only to deliver these messages. We do not sell it or share it with third parties for marketing. See our Privacy Policy for details.',
+        ],
+      },
+    ],
+  },
 }

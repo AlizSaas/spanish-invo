@@ -284,7 +284,7 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="text-muted-foreground hidden grid-cols-[1fr_5rem_7rem_5rem_7rem_4.5rem] gap-2 px-1 text-xs font-medium tracking-wide uppercase md:grid">
+            <div className="text-muted-foreground hidden grid-cols-[1fr_5rem_7rem_5rem_7rem_8rem] gap-2 px-1 text-xs font-medium tracking-wide uppercase md:grid">
               <span>{t.docs.builder.description}</span>
               <span>{t.docs.builder.qty}</span>
               <span>{t.docs.builder.price}</span>
@@ -295,7 +295,7 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
             {draft.items.map((it, i) => (
               <div
                 key={it.key}
-                className="bg-muted/30 grid grid-cols-2 gap-2 rounded-xl border p-3 md:grid-cols-[1fr_5rem_7rem_5rem_7rem_4.5rem] md:items-center md:border-0 md:bg-transparent md:p-0"
+                className="bg-muted/30 grid grid-cols-2 gap-2 rounded-xl border p-3 md:grid-cols-[1fr_5rem_7rem_5rem_7rem_8rem] md:items-center md:border-0 md:bg-transparent md:p-0"
               >
                 <Textarea
                   placeholder={t.docs.builder.descriptionPlaceholder}
@@ -335,8 +335,7 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="size-8"
+                    size="icon-sm"
                     disabled={i === 0}
                     onClick={() => moveItem(it.key, -1)}
                   >
@@ -345,8 +344,7 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="size-8"
+                    size="icon-sm"
                     disabled={i === draft.items.length - 1}
                     onClick={() => moveItem(it.key, 1)}
                   >
@@ -355,8 +353,8 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-destructive size-8"
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-destructive"
                     onClick={() => removeItem(it.key)}
                   >
                     <Trash2 className="size-4" />

@@ -88,14 +88,16 @@ export function AppSidebar({ user, settings }: Props) {
                       isActive={active}
                       tooltip={item.label}
                       size="lg"
-                      className="text-[0.95rem]"
+                      className="text-[0.95rem] group-data-[collapsible=icon]:justify-center"
                     >
                       <Link
                         to={item.to}
                         onClick={() => isMobile && setOpenMobile(false)}
                       >
-                        <item.icon className="size-5" />
-                        <span>{item.label}</span>
+                        <item.icon className="size-5 shrink-0" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          {item.label}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -120,15 +122,17 @@ function NavUser({ user, settings }: Props) {
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
   const locale = useUiStore((s) => s.locale)
+  const setLocale = useUiStore((s) => s.setLocale)
 
   const localeMutation = useMutation({
     mutationFn: (next: 'es' | 'en') =>
       updateSettingsFn({ data: { locale: next } }),
-    // Optimistic: the layout syncs the UI language from the settings cache,
-    // so updating the cache here flips the UI instantly and reverts on error.
+    // Optimistic: flip the UI store right away and update the settings cache
+    // (which the layout also watches); both revert if the save fails.
     onMutate: async (next) => {
       await queryClient.cancelQueries({ queryKey: SETTINGS_QUERY_KEY })
       const previous = queryClient.getQueryData<SettingsRow>(SETTINGS_QUERY_KEY)
+      setLocale(next)
       if (previous) {
         queryClient.setQueryData<SettingsRow>(SETTINGS_QUERY_KEY, {
           ...previous,
@@ -140,6 +144,7 @@ function NavUser({ user, settings }: Props) {
     onError: (_err, _next, context) => {
       if (context?.previous) {
         queryClient.setQueryData(SETTINGS_QUERY_KEY, context.previous)
+        setLocale(context.previous.locale)
       }
     },
     onSettled: () =>
@@ -174,7 +179,7 @@ function NavUser({ user, settings }: Props) {
                   {initials || <Logo compact />}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-medium">
                   {settings.businessName || user.name}
                 </span>
@@ -182,7 +187,7 @@ function NavUser({ user, settings }: Props) {
                   {user.email}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

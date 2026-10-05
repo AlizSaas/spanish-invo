@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Copy, MessageCircle, MessageSquareText } from 'lucide-react'
 import { toast } from 'sonner'
+import type { Language } from '@/lib/constants'
 import type { ShareChannel } from '@/lib/validators/documents'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,7 +18,9 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { prepareShareFn, recordShareFn } from '@/data/documents/documents'
 import { documentKeys } from '@/data/documents/queries'
+import { LANGUAGES } from '@/lib/constants'
 import { errorMessage, useT } from '@/lib/i18n'
+import { cn } from '@/lib/utils'
 
 export function ShareDialog({
   docId,
@@ -34,10 +37,14 @@ export function ShareDialog({
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState(false)
+  // null = the document's own language (what the customer expects). The owner
+  // can flip it for one send, e.g. an English-speaking customer on a Spanish invoice.
+  const [language, setLanguage] = useState<Language | null>(null)
 
   const prep = useQuery({
-    queryKey: ['share-prep', docId],
-    queryFn: () => prepareShareFn({ data: { id: docId } }),
+    queryKey: ['share-prep', docId, language],
+    queryFn: () =>
+      prepareShareFn({ data: { id: docId, language: language ?? undefined } }),
     enabled: open,
     staleTime: 0,
   })
@@ -45,6 +52,11 @@ export function ShareDialog({
   useEffect(() => {
     if (prep.data) setMessage(prep.data.message)
   }, [prep.data])
+
+  // Each time the dialog opens, start from the document language again.
+  useEffect(() => {
+    if (open) setLanguage(null)
+  }, [open])
 
   const invalidate = () =>
     Promise.all([
@@ -94,10 +106,11 @@ export function ShareDialog({
   }
 
   const hasPhone = Boolean(prep.data?.clientPhone)
+  const activeLanguage = language ?? prep.data?.language
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t.docs.share.title}</DialogTitle>
           <DialogDescription>{t.docs.share.subtitle}</DialogDescription>
@@ -112,14 +125,38 @@ export function ShareDialog({
             {errorMessage(t, prep.error)}
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <Field>
-              <FieldLabel htmlFor="share-message">
-                {t.docs.share.preview}
-              </FieldLabel>
+              <div className="flex items-center justify-between gap-3">
+                <FieldLabel htmlFor="share-message">
+                  {t.docs.share.preview}
+                </FieldLabel>
+                <div
+                  role="group"
+                  aria-label={t.docs.share.messageLanguage}
+                  className="bg-muted inline-flex rounded-md p-0.5 text-xs"
+                >
+                  {LANGUAGES.map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLanguage(l)}
+                      className={cn(
+                        'rounded px-2 py-1 font-medium uppercase transition-colors',
+                        activeLanguage === l
+                          ? 'bg-background text-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Textarea
                 id="share-message"
-                rows={5}
+                rows={6}
+                className="break-words"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
@@ -137,19 +174,19 @@ export function ShareDialog({
               </div>
             )}
 
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Button
                 size="lg"
-                className="h-12 justify-start gap-3 bg-[#25D366] text-white hover:bg-[#1ebe5b]"
+                className="h-12 justify-start gap-3 overflow-hidden bg-[#25D366] text-white hover:bg-[#1ebe5b]"
                 disabled={!hasPhone || share.isPending}
                 onClick={sendWhatsApp}
               >
-                <MessageCircle className="size-5" />
-                <span className="flex-1 text-left">
+                <MessageCircle className="size-5 shrink-0" />
+                <span className="min-w-0 flex-1 text-left">
                   <span className="block font-semibold">
                     {t.docs.share.whatsapp}
                   </span>
-                  <span className="block text-xs font-normal opacity-90">
+                  <span className="block truncate text-xs font-normal opacity-90">
                     {t.docs.share.whatsappHelp}
                   </span>
                 </span>
@@ -157,7 +194,7 @@ export function ShareDialog({
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 justify-start gap-3"
+                className="h-12 justify-start gap-3 overflow-hidden"
                 disabled={
                   !hasPhone || !prep.data.smsConfigured || share.isPending
                 }
@@ -166,13 +203,13 @@ export function ShareDialog({
                 {share.isPending && share.variables === 'sms' ? (
                   <Spinner />
                 ) : (
-                  <MessageSquareText className="size-5" />
+                  <MessageSquareText className="size-5 shrink-0" />
                 )}
-                <span className="flex-1 text-left">
+                <span className="min-w-0 flex-1 text-left">
                   <span className="block font-semibold">
                     {t.docs.share.sms}
                   </span>
-                  <span className="text-muted-foreground block text-xs font-normal">
+                  <span className="text-muted-foreground block truncate text-xs font-normal">
                     {t.docs.share.smsHelp}
                   </span>
                 </span>
@@ -180,15 +217,15 @@ export function ShareDialog({
               <Button
                 size="lg"
                 variant="secondary"
-                className="h-12 justify-start gap-3"
+                className="h-12 justify-start gap-3 overflow-hidden"
                 onClick={copyLink}
               >
                 {copied ? (
-                  <Check className="size-5" />
+                  <Check className="size-5 shrink-0" />
                 ) : (
-                  <Copy className="size-5" />
+                  <Copy className="size-5 shrink-0" />
                 )}
-                <span className="flex-1 text-left">
+                <span className="min-w-0 flex-1 text-left">
                   <span className="block font-semibold">
                     {t.docs.share.copyLink}
                   </span>

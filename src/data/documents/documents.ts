@@ -31,6 +31,7 @@ import {
   documentInputSchema,
   listDocumentsSchema,
   markPaidSchema,
+  prepareShareSchema,
   recordShareSchema,
   updateDocumentSchema,
 } from '@/lib/validators/documents'
@@ -412,7 +413,7 @@ export const duplicateDocumentFn = createServerFn({ method: 'POST' })
 /** Ensures the public link exists and returns everything the share dialog needs. */
 export const prepareShareFn = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .validator(documentIdSchema)
+  .validator(prepareShareSchema)
   .handler(async ({ context, data }) => {
     const { db, user, env } = context
     const doc = await db.query.invoices.findFirst({
@@ -431,14 +432,17 @@ export const prepareShareFn = createServerFn({ method: 'POST' })
     const token = await getOrCreatePublicToken(db, doc.id)
     const publicUrl = `${env.BETTER_AUTH_URL.replace(/\/$/, '')}/i/${token}`
 
-    const dict = getDictionary(doc.language)
+    // The customer-facing text follows the document's language, not the
+    // owner's UI language; the dialog lets the owner override it per send.
+    const language = data.language ?? doc.language
+    const dict = getDictionary(language)
     const message = fill(dict.message[doc.type], {
       number: doc.invoiceNumber,
       business: s?.businessName ?? user.name,
-      total: formatCurrency(doc.total, doc.currency, doc.language),
+      total: formatCurrency(doc.total, doc.currency, language),
       link: publicUrl,
       due: formatDate(doc.dueDate, {
-        language: doc.language,
+        language,
         timezone: s?.timezone,
       }),
     })
@@ -446,6 +450,7 @@ export const prepareShareFn = createServerFn({ method: 'POST' })
     return {
       publicUrl,
       message,
+      language,
       clientPhone: doc.client.phone,
       clientName: doc.client.name,
       smsConfigured: isSmsConfigured(env),

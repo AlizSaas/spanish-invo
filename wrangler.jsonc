@@ -47,6 +47,8 @@
   "send_email": [{ "name": "SEND_EMAIL" }],
   // Workers AI — embeddings (@cf/baai/bge-m3) for the assistant's semantic search. "remote": runs on Cloudflare in dev.
   "ai": { "binding": "AI", "remote": true },
+  // Cloudflare Images — normalizes uploaded logos (max 512px, WebP) before they land in R2.
+  "images": { "binding": "IMAGES" },
   // Vectorize — one vector per invoice/estimate, filtered by userId (metadata index). Index: spanish-invo-documents
   "vectorize": [
     {

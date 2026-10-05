@@ -127,7 +127,8 @@ export const en: Dictionary = {
     businessPhone: 'Business phone',
     businessPhoneHelp: 'Shown on the invoice so customers can reach you.',
     logo: 'Logo',
-    logoHelp: 'PNG or JPG, 2 MB max. You can add it later.',
+    logoHelp:
+      'PNG, JPG or WEBP up to 10 MB; we resize it automatically. You can add it later.',
     uploadLogo: 'Upload logo',
     changeLogo: 'Change logo',
     removeLogo: 'Remove',
@@ -166,7 +167,7 @@ export const en: Dictionary = {
     appLanguage: 'App language',
     saved: 'Changes saved',
     logoUploaded: 'Logo updated',
-    logoTooLarge: 'Logo must be under 2 MB',
+    logoTooLarge: 'Logo must be under 10 MB',
     logoBadType: 'Only PNG, JPG or WEBP images are allowed',
   },
   clients: {
@@ -344,6 +345,7 @@ export const en: Dictionary = {
       sms: 'Send by SMS',
       smsHelp: 'For customers without WhatsApp. Sent from our number.',
       smsSent: 'SMS sent',
+      messageLanguage: 'Message language',
       smsTooLong:
         'The SMS is too long (480 characters max). Shorten it or send on WhatsApp.',
       smsDailyLimit:
@@ -393,11 +395,11 @@ export const en: Dictionary = {
     emptyBody:
       'Ask in your own words. I search your clients, invoices and estimates and show you the results.',
     suggestions: [
-      'How much am I owed in total?',
+      'How much did I collect today?',
+      'Who owes me money?',
       'Which invoices are overdue?',
-      'What have I billed María García?',
-      'Summary for this month',
-      'Estimates not converted yet',
+      'How much did I invoice this month?',
+      'Did anyone open my invoices this week?',
     ],
     tools: {
       searchClients: 'Search clients',
@@ -406,7 +408,15 @@ export const en: Dictionary = {
       getSummary: 'Business summary',
       getClientBalance: 'Client balance',
       searchDocumentsByMeaning: 'Search by description',
+      getRevenueReport: 'Income report',
+      listClients: 'Clients and balances',
+      getRecentActivity: 'Recent activity',
     },
+    collected: 'Collected',
+    invoiced: 'Invoiced',
+    averageInvoice: 'Average per invoice',
+    topClients: 'Top clients',
+    clientsCount: 'clients',
     history: 'History',
     historyEmpty: 'No saved conversations yet.',
     deleteConversation: 'Delete conversation',
@@ -461,6 +471,7 @@ export const en: Dictionary = {
   legal: {
     privacy: 'Privacy Policy',
     terms: 'Terms of Service',
+    sms: 'SMS consent',
     contact: 'Contact',
     updated: 'Last updated',
     agree: 'By creating an account you agree to the {terms} and the {privacy}.',
