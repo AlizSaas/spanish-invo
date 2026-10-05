@@ -1,0 +1,19 @@
+# Copy to .dev.vars for local dev (wrangler + vite). Set the same keys with `wrangler secret put` for prod.
+
+# Direct Neon connection string. Used by drizzle-kit (migrations) only — the Worker goes through Hyperdrive.
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+# Same URL again: local dev target for the HYPERDRIVE binding (pnpm dev loads this file into the process env).
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://user:password@host/dbname?sslmode=require
+
+BETTER_AUTH_SECRET=change-me-32-chars-minimum
+BETTER_AUTH_URL=http://localhost:3000
+
+# OpenAI — powers the in-app AI assistant (/api/ai/chat). Model is OPENAI_MODEL in wrangler.jsonc.
+OPENAIAPIKEY=sk-...
+
+# Twilio — SMS fallback for customers without WhatsApp (build step 5)
+TWILIO_ACCOUNT_SID=ACxxx
+TWILIO_AUTH_TOKEN=xxx
+TWILIO_FROM_NUMBER=+15555550100
+
+# PDFs use the BROWSER binding (Cloudflare Browser Rendering); no API token needed.

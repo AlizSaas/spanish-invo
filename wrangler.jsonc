@@ -1,0 +1,76 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spanish-invo",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "main": "./src/server.ts",
+  // Production domain. Custom Domains create the DNS records and TLS certificate
+  // automatically; the zone facturafacilapp.com must already be on this account.
+  // www is redirected to the apex in src/server.ts so auth cookies have one origin.
+  "routes": [
+    { "pattern": "facturafacilapp.com", "custom_domain": true },
+    { "pattern": "www.facturafacilapp.com", "custom_domain": true },
+  ],
+  // Only the custom domain serves the app: a second *.workers.dev origin would
+  // not match BETTER_AUTH_URL and would break sign-in there anyway.
+  "workers_dev": false,
+  "preview_urls": false,
+  // Daily overdue sweep — runs handleScheduled in src/server.ts. 11:00 UTC ≈ 6am Chicago.
+  "triggers": { "crons": ["0 11 * * *"] },
+  // Naming rule: every Cloudflare resource for this app is prefixed "spanish-invo-"
+  // (KV, R2, Durable Objects, Workflows, Hyperdrive, Queues). Never reuse resources from other projects.
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "6a0e3179e6ab4b23a6bf65b3a2e4c2d3", // spanish-invo-kv
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "spanish-invo-storage",
+      "remote": true,
+    },
+  ],
+  // Hyperdrive — pooled, cached connection to Neon Postgres (config: spanish-invo-hyperdrive).
+  // Local dev reads CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE from .dev.vars (see package.json "dev").
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "d6c3eb1a509b47eca57ab6aa85990012",
+    },
+  ],
+  // Cloudflare Browser Rendering — server-side invoice PDFs. "remote" lets local dev use a real headless browser.
+  "browser": { "binding": "BROWSER", "remote": true },
+  // Cloudflare Email Sending — password-reset emails only in v1. EMAIL_FROM's domain must be verified for sending.
+  "send_email": [{ "name": "SEND_EMAIL" }],
+  // Workers AI — embeddings (@cf/baai/bge-m3) for the assistant's semantic search. "remote": runs on Cloudflare in dev.
+  "ai": { "binding": "AI", "remote": true },
+  // Vectorize — one vector per invoice/estimate, filtered by userId (metadata index). Index: spanish-invo-documents
+  "vectorize": [
+    {
+      "binding": "VECTORIZE",
+      "index_name": "spanish-invo-documents",
+      "remote": true,
+    },
+  ],
+  // Workflows — durable signup emails: welcome now, onboarding reminder a day later if still not set up.
+  "workflows": [
+    {
+      "name": "spanish-invo-welcome-email",
+      "binding": "WELCOME_EMAIL_WORKFLOW",
+      "class_name": "WelcomeEmailWorkflow",
+    },
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "https://facturafacilapp.com",
+    "CLOUDFLARE_ACCOUNT_ID": "04cb99e92f7e20dd5cafcdf75be555bc",
+    "EMAIL_FROM": "no-reply@alizmail.com",
+    "APP_NAME": "Factura Fácil",
+    "DEFAULT_TIMEZONE": "America/Chicago",
+    // AI assistant model (OpenAI). The key itself is the OPENAIAPIKEY secret.
+    "OPENAI_MODEL": "gpt-5-mini",
+  },
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+}

@@ -1,0 +1,17 @@
+# facturafacilapp.com
+# Public marketing and legal pages may be indexed. Everything behind sign-in,
+# the API, and shared invoice links (/i/<token>) must stay out of search results.
+
+User-agent: *
+Disallow: /api/
+Disallow: /i/
+Disallow: /dashboard
+Disallow: /invoices
+Disallow: /estimates
+Disallow: /clients
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://facturafacilapp.com/sitemap.xml

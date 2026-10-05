@@ -1,0 +1,9 @@
+node_modules
+dist
+.wrangler
+.tanstack
+.claude
+drizzle
+pnpm-lock.yaml
+worker-configuration.d.ts
+src/routeTree.gen.ts

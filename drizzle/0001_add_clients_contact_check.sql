@@ -1,0 +1,1 @@
+ALTER TABLE "clients" ADD CONSTRAINT "chk_clients_contact" CHECK ("clients"."phone" IS NOT NULL OR "clients"."email" IS NOT NULL);
