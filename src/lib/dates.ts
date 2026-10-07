@@ -3,7 +3,8 @@
  * at 12:00 UTC so they render as the same calendar day in every US time zone.
  */
 
-export const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
+/** yyyy-mm-dd with a real month and day, so it always parses to a valid Date. */
+export const DATE_ONLY = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
 
 export function dateOnlyToDb(yyyyMmDd: string): Date {
   return new Date(`${yyyyMmDd}T12:00:00.000Z`)
@@ -15,6 +16,11 @@ export function dbToDateOnly(d: Date | string): string {
 
 export function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+/** yyyy-mm-dd for "now" in the given IANA time zone. */
+export function todayInZone(timeZone: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date())
 }
 
 export function addDays(yyyyMmDd: string, days: number): string {

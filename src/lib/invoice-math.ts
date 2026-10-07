@@ -50,8 +50,11 @@ export function computeTotals(
   let discountAmount = 0
   const dv = toNumber(discountValue)
   if (discountType && dv > 0 && subtotal > 0) {
+    // Never more than the subtotal, whatever the input: totals can't go negative.
     discountAmount =
-      discountType === 'fixed' ? Math.min(dv, subtotal) : subtotal * (dv / 100)
+      discountType === 'fixed'
+        ? Math.min(dv, subtotal)
+        : subtotal * (Math.min(dv, 100) / 100)
     discountAmount = round2(discountAmount)
   }
 

@@ -5,6 +5,7 @@ import { and, eq, gt, isNull, or } from 'drizzle-orm'
 import type { Database } from '@/db'
 import type { PublicDocument } from '@/lib/types'
 import {
+  invoiceEvents,
   invoiceItems,
   invoicePublicTokens,
   invoices,
@@ -14,6 +15,26 @@ import { publicMiddleware } from '@/middlewares/dependencies'
 import { getActivePlan } from '@/lib/plan'
 import { publicTokenSchema } from '@/lib/validators/documents'
 import { logEvent } from '@/data/documents/helpers'
+
+/**
+ * Public links can be reloaded endlessly: keep at most one event of a kind per
+ * document per hour, so the owner's activity feed (and the table) stay readable.
+ */
+async function logPublicEvent(
+  db: Database,
+  invoiceId: string,
+  eventType: 'viewed' | 'pdf_downloaded',
+) {
+  const recent = await db.query.invoiceEvents.findFirst({
+    where: and(
+      eq(invoiceEvents.invoiceId, invoiceId),
+      eq(invoiceEvents.eventType, eventType),
+      gt(invoiceEvents.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
+    ),
+    columns: { id: true },
+  })
+  if (!recent) await logEvent(db, invoiceId, eventType)
+}
 
 /** Shared by the public page server function and the PDF route. */
 export async function loadPublicDocument(
@@ -47,7 +68,7 @@ export async function loadPublicDocument(
   const { plan } = await getActivePlan(db, doc.userId)
 
   if (opts.recordView) {
-    // First open flips sent → viewed; every open leaves a trace for the owner.
+    // First open flips sent → viewed; later opens leave a trace for the owner.
     if (doc.status === 'sent') {
       await db
         .update(invoices)
@@ -60,10 +81,10 @@ export async function loadPublicDocument(
         .set({ viewedAt: new Date() })
         .where(eq(invoices.id, doc.id))
     }
-    await logEvent(db, doc.id, 'viewed')
+    await logPublicEvent(db, doc.id, 'viewed')
   }
   if (opts.recordPdf) {
-    await logEvent(db, doc.id, 'pdf_downloaded')
+    await logPublicEvent(db, doc.id, 'pdf_downloaded')
   }
 
   return {

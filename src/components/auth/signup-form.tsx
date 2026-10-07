@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { authErrorMessage } from './auth-errors'
+import { GoogleSignIn, googleErrorFromSearch } from './google-button'
+import { useTurnstile } from './turnstile'
 import { LegalAgreement } from '@/components/legal/legal-links'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,12 +30,15 @@ const schema = z.object({
 })
 type Values = z.infer<typeof schema>
 
-export function SignupForm() {
+export function SignupForm({ oauthError }: { oauthError?: string }) {
   const t = useT()
   const locale = useUiStore((s) => s.locale)
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [serverError, setServerError] = useState<string | null>(null)
+  const turnstile = useTurnstile('signup')
+  const [serverError, setServerError] = useState<string | null>(() =>
+    googleErrorFromSearch(oauthError, t.auth.errors.google),
+  )
   const {
     register,
     handleSubmit,
@@ -45,15 +50,22 @@ export function SignupForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null)
+    if (!turnstile.headers) {
+      setServerError(t.auth.errors.captcha)
+      return
+    }
     const { error } = await signUp.email({
       name: values.name,
       email: values.email,
       password: values.password,
       // So the welcome emails come in the language they signed up in.
-      fetchOptions: { headers: { [LOCALE_HEADER]: locale } },
+      fetchOptions: {
+        headers: { [LOCALE_HEADER]: locale, ...turnstile.headers },
+      },
     })
     if (error) {
-      setServerError(authErrorMessage(t, error.code))
+      turnstile.reset()
+      setServerError(authErrorMessage(t, error))
       return
     }
     // Drop anything cached for a previous account in this tab (see login-form).
@@ -70,6 +82,8 @@ export function SignupForm() {
         </h1>
         <p className="text-muted-foreground mt-1">{t.auth.signup.subtitle}</p>
       </div>
+
+      <GoogleSignIn errorPath="/signup" onError={setServerError} />
 
       <FieldGroup>
         <Field data-invalid={!!errors.name}>
@@ -118,14 +132,18 @@ export function SignupForm() {
         </p>
       )}
 
-      <Button
-        type="submit"
-        className="h-11 w-full text-base"
-        disabled={isSubmitting}
-      >
-        {isSubmitting && <Spinner />}
-        {t.auth.signup.submit}
-      </Button>
+      <div>
+        {/* Usually empty: Turnstile only shows a checkbox when unsure. */}
+        <div ref={turnstile.ref} className="*:mb-3" />
+        <Button
+          type="submit"
+          className="h-11 w-full text-base"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner />}
+          {t.auth.signup.submit}
+        </Button>
+      </div>
 
       <LegalAgreement />
 

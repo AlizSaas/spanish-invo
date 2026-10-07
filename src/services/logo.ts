@@ -9,17 +9,34 @@
 const LOGO_KEY = (userId: string) => `logos/${userId}`
 /** Server-side ceiling after the client resize; 5 MB leaves room for huge PNG logos. */
 export const LOGO_MAX_BYTES = 5 * 1024 * 1024
-export const LOGO_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp'])
 const LOGO_MAX_SIDE = 512
+
+/**
+ * The image type from the file's first bytes. The browser-declared type is
+ * the uploader's word; this is what gets stored and served back.
+ */
+export async function sniffLogoType(file: File): Promise<string | null> {
+  const b = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+  const at = (offset: number, ...bytes: Array<number>) =>
+    bytes.every((v, i) => b[offset + i] === v)
+  if (at(0, 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) return 'image/png'
+  if (at(0, 0xff, 0xd8, 0xff)) return 'image/jpeg'
+  // "RIFF" <size> "WEBP"
+  if (at(0, 0x52, 0x49, 0x46, 0x46) && at(8, 0x57, 0x45, 0x42, 0x50)) {
+    return 'image/webp'
+  }
+  return null
+}
 
 export async function putLogo(
   bucket: R2Bucket,
   userId: string,
   file: File,
+  contentType: string,
   images?: ImagesBinding,
 ) {
   let bytes: ArrayBuffer = await file.arrayBuffer()
-  let contentType = file.type
+  let storedType = contentType
 
   if (images) {
     try {
@@ -32,7 +49,7 @@ export async function putLogo(
         })
         .output({ format: 'image/webp', quality: 85 })
       bytes = await result.response().arrayBuffer()
-      contentType = result.contentType()
+      storedType = result.contentType()
     } catch (err) {
       console.warn(
         JSON.stringify({
@@ -46,7 +63,7 @@ export async function putLogo(
 
   await bucket.put(LOGO_KEY(userId), bytes, {
     httpMetadata: {
-      contentType,
+      contentType: storedType,
       cacheControl: 'public, max-age=3600',
     },
   })

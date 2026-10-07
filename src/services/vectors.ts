@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import type { Database } from '@/db'
 import type { DocumentType } from '@/lib/constants'
 import { invoiceItems, invoices } from '@/db/schema'
+import { errorForLog } from '@/lib/log'
 
 /**
  * Semantic search over the owner's documents.
@@ -91,7 +92,7 @@ export async function tryIndexDocument(
         level: 'warn',
         msg: 'vector index',
         docId,
-        error: err instanceof Error ? err.message : String(err),
+        ...errorForLog(err),
       }),
     )
   }

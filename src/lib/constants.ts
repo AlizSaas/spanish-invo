@@ -19,6 +19,13 @@ export type Language = (typeof LANGUAGES)[number]
 export const DEFAULT_LANGUAGE: Language = 'es'
 /** Sent by the signup and forgot-password forms so auth emails match the UI language. */
 export const LOCALE_HEADER = 'x-locale'
+/**
+ * Same value as a short-lived cookie, set before "Continue with Google": the
+ * account is created on Google's redirect back, which can't carry a header.
+ */
+export const LOCALE_COOKIE = 'ff-locale'
+/** One-time Turnstile token from the login, signup and forgot-password forms. */
+export const TURNSTILE_HEADER = 'x-turnstile-token'
 
 export const DISCOUNT_TYPES = ['percentage', 'fixed'] as const
 export type DiscountType = (typeof DISCOUNT_TYPES)[number]
@@ -80,6 +87,8 @@ export const DEFAULT_DUE_DAYS = 15
 
 /** Public site origin (SEO tags, legal pages). Runtime links use env.BETTER_AUTH_URL. */
 export const SITE_URL = 'https://facturafacilapp.com'
+/** Absolute URL of a public page, for its canonical link and og:url. Keep in step with public/sitemap.xml. */
+export const pageUrl = (path: string) => `${SITE_URL}${path}`
 /** Shown in the footer, legal pages and security.txt. Needs a real mailbox (Email Routing). */
 export const SUPPORT_EMAIL = 'support@facturafacilapp.com'
 

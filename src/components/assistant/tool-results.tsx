@@ -151,7 +151,7 @@ function Empty({ text }: { text: string }) {
   return <p className="text-muted-foreground text-sm">{text}</p>
 }
 
-function useFmt() {
+export function useFmt() {
   const { settings } = useAppContext()
   const locale = useUiStore((s) => s.locale)
   return {

@@ -3,7 +3,7 @@ import type { Dictionary } from './es'
 export const en: Dictionary = {
   common: {
     appName: 'Factura Fácil',
-    tagline: 'Professional invoices over WhatsApp and Messenger, no hassle.',
+    tagline: 'Invoices made with AI, sent over WhatsApp and Messenger.',
     save: 'Save',
     saving: 'Saving…',
     cancel: 'Cancel',
@@ -56,23 +56,57 @@ export const en: Dictionary = {
     account: 'Account',
   },
   landing: {
-    heroTitle: 'Get paid faster. Invoice over WhatsApp and Messenger.',
+    heroTitle: 'Describe the job. AI makes the invoice.',
     heroBody:
-      'Create professional invoices and estimates in Spanish or English and send them straight to your customer’s WhatsApp or Messenger. No cards, no fees: they pay you by Zelle, Cash App, cash or check and you mark the invoice paid.',
+      'In your own words. AI drafts the client and the invoice; you check it and send it on WhatsApp.',
     ctaPrimary: 'Start for free',
     ctaSecondary: 'I already have an account',
-    feature1Title: 'Ready in 2 minutes',
-    feature1Body: 'Enter your business name and how you get paid. That’s it.',
-    feature2Title: 'Send by WhatsApp or Messenger',
-    feature2Body:
-      'Your customer opens a clean link with the invoice and can download the PDF.',
-    feature3Title: 'You stay in control',
-    feature3Body:
-      'No payment processors. Mark each invoice paid when the money arrives.',
     forWho: 'Built for landscapers, cleaners, mechanics, contractors and more.',
-    demoTitle: 'See how it works',
+    chat: {
+      label:
+        'Example: the AI assistant turns one message into a $200 invoice for a new client, ready to send on WhatsApp.',
+      prompt:
+        'Invoice María González, 305 555 0142: lawn mowing $120 and hedge trimming $80.',
+      reply: 'María is a new client, so I’ll add her too. Here’s the invoice:',
+      client: 'María González',
+      newClient: 'New',
+      items: ['Lawn mowing', 'Hedge trimming'],
+      replay: 'Play again',
+    },
+    asksTitle: 'Ask it anything about your business',
+    asksBody:
+      'It knows your clients and invoices, so you ask in plain words instead of searching.',
+    asks: [
+      'Who owes me money?',
+      'Estimate for Pedro’s kitchen: tile $1,800',
+      'How much did I collect this month?',
+      'Which invoices are overdue?',
+      'Invoice Luis for an oil change, $65',
+      'What did I charge the Ramírez family last time?',
+      'Add a client: Ana Torres, 786 555 0199',
+      'How much did I invoice in September?',
+    ],
+    asksAuth: 'Ask things like:',
+    stepsTitle: 'From one message to getting paid',
+    steps: [
+      {
+        title: 'Tell it the job',
+        body: 'Type it like a text to a helper. If the client is new, the AI adds them.',
+      },
+      {
+        title: 'Check and confirm',
+        body: 'You see the client, the work and the total first. Nothing is saved until you say yes.',
+      },
+      {
+        title: 'Send it on WhatsApp',
+        body: 'Your customer opens a clean link with the PDF and pays you by Zelle, Cash App, cash or check. No fees.',
+      },
+    ],
+    stepsManual:
+      'Prefer to fill it in yourself? The invoice form is still there.',
+    demoTitle: 'Watch the AI make an invoice',
     demoSubtitle:
-      'From zero to an invoice in your customer’s WhatsApp, in less time than a coffee break.',
+      'Two minutes, start to finish: from one typed message to an invoice in your customer’s WhatsApp.',
     demoCta: 'Watch the 2-minute demo',
     demoSoon: 'Video coming soon (add the YouTube ID in demo-video.tsx)',
     tradesTitle: 'Made for your trade',
@@ -81,7 +115,7 @@ export const en: Dictionary = {
     trades: [
       {
         trade: 'Landscaping',
-        body: 'Finish the mow, send the invoice over WhatsApp from the truck and head to the next yard.',
+        body: 'Finish the mow, tell the AI what you did, and the invoice is on WhatsApp before you reach the next yard.',
       },
       {
         trade: 'Cleaning',
@@ -89,11 +123,11 @@ export const en: Dictionary = {
       },
       {
         trade: 'Mechanics',
-        body: 'List parts and labor so the customer sees exactly what they’re paying for.',
+        body: 'Type parts and labor in one message; the AI turns them into lines the customer can follow.',
       },
       {
         trade: 'Contractors',
-        body: 'Send the estimate first and turn it into an invoice with one tap once it’s approved.',
+        body: 'Ask the AI for the estimate and turn it into an invoice with one tap once it’s approved.',
       },
       {
         trade: 'Painters',
@@ -112,7 +146,7 @@ export const en: Dictionary = {
   auth: {
     login: {
       title: 'Welcome back',
-      subtitle: 'Sign in to see your invoices',
+      subtitle: 'Sign in and ask the AI for your next invoice.',
       email: 'Email',
       password: 'Password',
       submit: 'Sign in',
@@ -122,7 +156,7 @@ export const en: Dictionary = {
     },
     signup: {
       title: 'Create your account',
-      subtitle: 'Free. No credit card.',
+      subtitle: 'Free, no credit card. Your AI assistant is waiting inside.',
       name: 'Your name',
       email: 'Email',
       password: 'Password',
@@ -148,11 +182,17 @@ export const en: Dictionary = {
       mismatch: 'Passwords do not match',
       invalidToken: 'This link is no longer valid. Request a new one.',
     },
+    google: 'Continue with Google',
+    or: 'or',
     errors: {
       invalidCredentials: 'Wrong email or password',
       emailInUse: 'An account with that email already exists',
       weakPassword: 'Password must be at least 8 characters',
       generic: 'We could not complete that. Please try again.',
+      google: 'We couldn’t sign you in with Google. Please try again.',
+      tooMany: 'Too many attempts. Wait a minute and try again.',
+      captcha:
+        'We couldn’t confirm you’re not a bot. Wait a moment and try again.',
     },
   },
   onboarding: {
@@ -441,8 +481,8 @@ export const en: Dictionary = {
     open: 'Ask AI',
     title: 'AI Assistant',
     subtitle: 'Invoices, clients and collections',
-    placeholder: 'Ask anything about your invoices…',
-    hint: 'Enter to send · Shift+Enter for a new line. The assistant only reads; it never changes data.',
+    placeholder: 'Ask, or say “make an invoice for John”…',
+    hint: 'Enter to send · Shift+Enter for a new line. Nothing is saved until you confirm.',
     expand: 'Full width',
     collapse: 'Side panel',
     clear: 'New conversation',
@@ -451,13 +491,14 @@ export const en: Dictionary = {
     searching: 'Looking through your data…',
     emptyTitle: 'How can I help?',
     emptyBody:
-      'Ask in your own words. I search your clients, invoices and estimates and show you the results.',
+      'Ask in your own words: I look up your clients and invoices, or create a client and their invoice for you. You confirm before anything is saved.',
     suggestions: [
-      'How much did I collect today?',
+      'Make an invoice for a new client',
       'Who owes me money?',
+      'How much did I collect today?',
+      'Make an estimate',
       'Which invoices are overdue?',
       'How much did I invoice this month?',
-      'Did anyone open my invoices this week?',
     ],
     tools: {
       searchClients: 'Search clients',
@@ -469,6 +510,31 @@ export const en: Dictionary = {
       getRevenueReport: 'Income report',
       listClients: 'Clients and balances',
       getRecentActivity: 'Recent activity',
+      createClient: 'Create client',
+      createDocument: 'Create document',
+    },
+    write: {
+      preparing: 'Preparing…',
+      saving: 'Saving…',
+      approve: 'Yes, create',
+      confirmClient: 'Create this client?',
+      confirmInvoice: 'Create this invoice?',
+      confirmEstimate: 'Create this estimate?',
+      client: 'Client',
+      language: 'Language',
+      draftNote: 'Saved as a draft: you can review or edit it before sending.',
+      cancelled: 'Cancelled. Nothing was saved.',
+      failed: 'Couldn’t save it. Please try again.',
+      clientCreated: 'Client created',
+      clientExisting: 'This client already existed',
+      invoiceCreated: 'Invoice created (draft)',
+      estimateCreated: 'Estimate created (draft)',
+      shareHint: 'Send it over WhatsApp, Messenger or a link.',
+      planLimit:
+        'You’ve used this month’s documents on the Free plan. With Pro you can create as many as you like.',
+      seePro: 'See Pro',
+      clientNotFound: 'I couldn’t find that client.',
+      awaitingApproval: 'Confirm or cancel the card above…',
     },
     collected: 'Collected',
     invoiced: 'Invoiced',
@@ -549,7 +615,8 @@ export const en: Dictionary = {
     yearly: 'Yearly',
     perMonth: '/mo',
     perYear: '/yr',
-    trialNote: '14 days free. Cancel anytime.',
+    trialNote:
+      '14 days free, then renews automatically until you cancel. Cancel anytime.',
     limitReached:
       'You reached the Free plan limit (3 invoices and 3 estimates a month). Upgrade to Pro to keep going.',
     limitTitle: 'You reached the Free plan limit',

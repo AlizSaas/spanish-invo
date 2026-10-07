@@ -8,6 +8,12 @@ CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://user:passw
 BETTER_AUTH_SECRET=change-me-32-chars-minimum
 BETTER_AUTH_URL=http://localhost:3000
 
+# Google sign-in (Google Cloud Console → Credentials → OAuth client, type "Web application").
+# Redirect URIs: http://localhost:3000/api/auth/callback/google and
+# https://facturafacilapp.com/api/auth/callback/google. Without them the Google button shows an error.
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
 # OpenAI — powers the in-app AI assistant (/api/ai/chat). Model is OPENAI_MODEL in wrangler.jsonc.
 OPENAIAPIKEY=sk-...
 
@@ -24,3 +30,7 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_PRO_MONTHLY=price_...
 STRIPE_PRICE_PRO_YEARLY=price_...
+
+# Cloudflare Turnstile on login, signup and forgot password. This is Cloudflare's
+# always-pass test secret; production gets the real one via `wrangler secret put`.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

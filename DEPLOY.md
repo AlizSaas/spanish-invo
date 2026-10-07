@@ -14,7 +14,8 @@ Run `pnpm check` before every deploy; deploy with `pnpm deploy`.
 - [ ] `workers_dev` is `false`, so the old `spanish-invo.alizdevs.workers.dev` URL stops
       serving the app after the first deploy. That is intended: auth cookies and
       `BETTER_AUTH_URL` now assume one origin, `https://facturafacilapp.com`.
-- [ ] SSL/TLS mode for the zone: **Full (strict)**. Enable **Always Use HTTPS**.
+- [x] SSL/TLS mode for the zone: **Full (strict)**. Enable **Always Use HTTPS**.
+      Minimum TLS version **1.2**. (Set via API on 2026-10-07.)
 
 ## 2. Secrets (never in wrangler.jsonc or git)
 
@@ -24,9 +25,19 @@ wrangler secret put OPENAIAPIKEY           # AI assistant
 wrangler secret put TWILIO_ACCOUNT_SID     # optional: SMS fallback
 wrangler secret put TWILIO_AUTH_TOKEN
 wrangler secret put TWILIO_FROM_NUMBER
+wrangler secret put GOOGLE_CLIENT_ID       # "Continue with Google"
+wrangler secret put GOOGLE_CLIENT_SECRET
+wrangler secret put TURNSTILE_SECRET_KEY   # bot check on login, signup, password reset
 ```
 
+- [ ] `TURNSTILE_SECRET_KEY` is the secret of the widget whose site key is in
+      `src/components/auth/turnstile.tsx`. Without it the app lets every login through
+      unchecked and logs `turnstile: TURNSTILE_SECRET_KEY is not set`. Local dev uses
+      Cloudflare's always-pass test keys (`.dev.vars`).
+
 - [ ] Use a different `BETTER_AUTH_SECRET` than the one in `.dev.vars`.
+- [ ] Google OAuth client: authorized origin `https://facturafacilapp.com`, redirect URI
+      `https://facturafacilapp.com/api/auth/callback/google`; consent screen published ("In production").
 - [ ] Rotate any key that has ever been pasted into a chat, a screenshot or a commit.
 
 ## 3. Database (Neon)
@@ -34,6 +45,8 @@ wrangler secret put TWILIO_FROM_NUMBER
 - [ ] Production branch/database exists and the Hyperdrive config
       `spanish-invo-hyperdrive` points at it (id is in `wrangler.jsonc`).
 - [ ] Run migrations against production: `DATABASE_URL=<prod direct url> pnpm db:migrate`.
+      `0005_ai_usage` (the AI budget table) must be applied before deploying the
+      version that reads it, or every assistant message fails.
 - [ ] Note Neon's restore window on your plan (24 h on Free, 7 days on Launch). That is
       your backup; take a `pg_dump` before risky migrations.
 
@@ -51,27 +64,42 @@ wrangler secret put TWILIO_FROM_NUMBER
 
 ## 5. Legal
 
-- [ ] Read `/privacy` and `/terms` (`src/content/legal/es.ts`, `en.ts`). They describe
-      what the code did before billing (Cloudflare, Neon, OpenAI, Twilio, public
-      invoice links, no payment processing). Have a lawyer review them before launch.
-- [ ] Add Stripe billing to both languages before charging anyone. Terms → "Price"
-      still says the service is free: replace it with the Pro prices, the 14-day trial
-      (once per account), automatic renewal, cancellation (Pro stays until the end of
-      the paid period) and your refund policy. Terms → "What Factura Fácil is": "we do
-      not process payments" should be limited to your customers' invoice payments.
-      Privacy → "Who we share data with": add Stripe (payments and billing).
-- [ ] Fill in the governing-law state in the Terms (both languages) and the legal
-      entity name if you operate as an LLC.
-- [ ] Any time the text changes, update the `updated` date in both files.
+- [x] Billing added to `/privacy` and `/terms` (`src/content/legal/es.ts`, `en.ts`) on
+      2026-10-07: Free/Pro limits, prices and taxes, the 14-day trial (once per account),
+      automatic renewal, cancellation (Pro stays until the end of the paid period),
+      refunds, failed payments, Stripe as a processor, Google sign-in, Turnstile, cookies,
+      state privacy rights. The pricing dialog and plan card say the trial renews
+      automatically (`trialNote`).
+- [ ] Confirm the choices the text makes for you, in both languages:
+      **refunds** (no refunds for partial periods; refund within 30 days for a double
+      charge or a long outage on our side), **governing law Kentucky** with Kentucky
+      courts, **the English version controls** if the two differ, a **30-day notice**
+      before price changes and a **15-day notice** before material changes to the terms.
+- [ ] Add the legal entity name if you operate as an LLC.
+- [ ] Have a lawyer review both documents before charging real customers.
+- [ ] Any time the text changes, update the `updated` date in both files and the page's
+      `<lastmod>` in `public/sitemap.xml`.
 
 ## 6. Security hardening in the dashboard (no code)
 
-- [ ] **WAF → Rate limiting rules**: one rule is free. Suggested: path starts with
-      `/api/auth/` and method `POST` → 10 requests per 10 seconds per IP → block for
-      1 minute. Better Auth's built-in limiter is per Worker isolate, so this is the
-      real brute-force protection.
-- [ ] **Bot Fight Mode** on (Security → Bots).
-- [ ] Optional: Cloudflare **Turnstile** on signup if you see spam accounts.
+The Worker rate-limits itself with the `RL_STRICT` (10/min) and `RL_GENERAL` (300/min)
+bindings in `wrangler.jsonc` (see `src/lib/rate-limit.ts`): per IP (IPv6 by /64) on
+sign-in, sign-up, password reset, logo upload and PDF renders, per account on the AI
+chat, and 300/min per IP on everything else. The Stripe webhook is exempt. Those
+requests still reach the Worker, so the dashboard rules below are the layer that stops
+a flood before it costs anything.
+
+- [ ] The `namespace_id`s `72001` and `72002` must not be used by another Worker on
+      this account (they would share counters).
+- [x] **WAF → Rate limiting rules**: one rule is free. On the Free plan the period and
+      the block are both fixed at 10 seconds. Created 2026-10-07: URI path is one of
+      `/api/auth/sign-in/email`, `/api/auth/sign-up/email`,
+      `/api/auth/request-password-reset` → 5 requests per 10 seconds per IP → block.
+      If you add a sign-in method (magic link, phone), add its path to this rule.
+- [x] **Bot Fight Mode** on (Security → Bots).
+- [ ] **Turnstile** is in code on login, signup and forgot-password (managed widget,
+      invisible unless Cloudflare is unsure). The widget's hostname list must include
+      `facturafacilapp.com`; the server rejects tokens issued for any other hostname.
 - [ ] Workers **observability** is on; add a **Notification** for Worker error rate.
 
 - [ ] **Twilio**: SMS is switched off in code until Twilio approves the verification:
@@ -103,10 +131,31 @@ Still open, by design or product decision:
       link. Consider rotating the token on void and an optional expiry.
 - [ ] The public payload includes the invoice id and owner id (the owner id is already
       visible in the logo URL). Harmless today because every endpoint is user-scoped.
-- [ ] Anonymous opens of a shared link each write a `viewed` event; add de-duplication
-      if a customer refreshing a page ever becomes a problem. Link-preview fetchers
-      (Messenger, WhatsApp, iMessage, Slack, search crawlers) are recognized by user
-      agent and don't count as opens.
+
+### Security review notes (2026-10-07)
+
+Fixed in code: edge rate limiting (section 6); the AI budget is counted in an
+append-only `ai_usage` table, so deleting chats or replaying message ids no longer
+resets it, and approval follow-ups are capped at twice the budget; users can only send
+the AI text (no file URLs); model output is capped per step; the PDF renderer runs
+with JavaScript off and refuses every network request (logos are inlined), and answers
+503 when Browser Rendering is busy; `viewed` / `pdf_downloaded` events are written at
+most once per hour per invoice; a password reset signs out every session; reset emails
+are sent at most once per 2 minutes per address; account names are stripped of
+control characters; logos are checked by their bytes, not the declared type, and
+served with a sandbox CSP; the assistant's markdown can't load images; percent
+discounts are capped at 100 % and impossible dates are rejected; every validated
+string and number has an upper bound.
+
+Still open:
+
+- [ ] **Document limit race**: two simultaneous creates on Free can both pass the
+      monthly check. Low impact (one extra document); fix with an advisory lock if it
+      ever matters. Deleting a draft also frees its slot in the count.
+- [ ] Sessions are cached in a cookie for 5 minutes, so a revoked session can keep
+      working for up to 5 minutes.
+- [ ] Stripe retries a webhook it didn't get a 2xx for; a retry after a slow success
+      can send the thank-you email twice.
 
 ## 7. After the first deploy, verify
 
@@ -127,7 +176,11 @@ Still open, by design or product decision:
 - [ ] Upload a logo in Settings. Worker logs should not show `logo transform skipped`; if
       they do, enable Cloudflare Images for the account (Images → Get started, 5,000 free
       transformations a month). Logos still work without it, just not resized to WebP.
-- [ ] Google Search Console: add the domain property (DNS TXT), submit `/sitemap.xml`.
+- [ ] Google Search Console (https://search.google.com/search-console): add a **Domain**
+      property for `facturafacilapp.com`. The `google-site-verification` TXT record is
+      already in DNS, so **Verify** should pass at once. Then **Sitemaps** → enter
+      `sitemap.xml` → **Submit**, and **URL Inspection** → `https://facturafacilapp.com/`
+      → **Request indexing**. See `docs/SITEMAP-VALIDATION-REPORT.md`.
 
 ## 8. Dependencies
 
@@ -157,6 +210,9 @@ only reads the `subscription` table it fills from webhooks.
       `customer.subscription.updated`, `customer.subscription.deleted`. Create it separately
       for test and live mode; each has its own signing secret.
 - [ ] Customer portal enabled (cancel, update card, switch monthly/yearly).
+- [ ] Settings → Billing → Subscriptions and emails → **Customer emails**: turn on
+      "Send emails about upcoming renewals" (the Terms promise a reminder before each
+      yearly renewal) and "Send emails about expiring cards".
 - [ ] Database: run the migration that adds `subscription` and `user.stripe_customer_id`
       (`pnpm db:migrate`) before deploying this version.
 - [ ] Kentucky sales tax (6% on SaaS, in-state seller): register for a KY sales and use tax

@@ -9,7 +9,6 @@ import { ThemeProvider } from 'next-themes'
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
-import { SITE_URL } from '@/lib/constants'
 import { useUiStore } from '@/stores/ui-store'
 
 interface RouterContext {
@@ -24,11 +23,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
-      { title: 'Factura Fácil — Facturas por WhatsApp y Messenger' },
+      { title: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp' },
       {
         name: 'description',
         content:
-          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o Messenger.',
+          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
       },
       { name: 'theme-color', content: '#2f7a4f' },
       // Link previews (WhatsApp, iMessage, social) when the site URL is shared.
@@ -36,14 +35,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: 'og:type', content: 'website' },
       {
         property: 'og:title',
-        content: 'Factura Fácil — Facturas por WhatsApp y Messenger',
+        content: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp',
       },
       {
         property: 'og:description',
         content:
-          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o Messenger.',
+          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
       },
-      { property: 'og:url', content: SITE_URL },
+      // og:url and the canonical link are set per public page (pageUrl).
       { property: 'og:locale', content: 'es_US' },
       { property: 'og:locale:alternate', content: 'en_US' },
       { name: 'twitter:card', content: 'summary' },

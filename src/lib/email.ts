@@ -6,7 +6,12 @@
 // Cloudflare dashboard, and wrangler.jsonc declares `send_email: [{ name: "SEND_EMAIL" }]`.
 
 import type { Language } from '@/lib/constants'
-import { DEFAULT_LANGUAGE, LANGUAGES, LOCALE_HEADER } from '@/lib/constants'
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGES,
+  LOCALE_COOKIE,
+  LOCALE_HEADER,
+} from '@/lib/constants'
 
 interface SendEmailInput {
   to: string
@@ -30,6 +35,10 @@ export async function sendEmail(
 
 /** UI language of the request that triggered an email; Spanish when unknown. */
 export function languageFromHeaders(headers: Headers | undefined): Language {
-  const value = headers?.get(LOCALE_HEADER)
+  const value =
+    headers?.get(LOCALE_HEADER) ??
+    headers
+      ?.get('cookie')
+      ?.match(new RegExp(`(?:^|;\\s*)${LOCALE_COOKIE}=(\\w+)`))?.[1]
   return LANGUAGES.find((l) => l === value) ?? DEFAULT_LANGUAGE
 }

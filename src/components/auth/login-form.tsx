@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { authErrorMessage } from './auth-errors'
+import { GoogleSignIn, googleErrorFromSearch } from './google-button'
+import { useTurnstile } from './turnstile'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -23,11 +25,14 @@ const schema = z.object({
 })
 type Values = z.infer<typeof schema>
 
-export function LoginForm() {
+export function LoginForm({ oauthError }: { oauthError?: string }) {
   const t = useT()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [serverError, setServerError] = useState<string | null>(null)
+  const turnstile = useTurnstile('login')
+  const [serverError, setServerError] = useState<string | null>(() =>
+    googleErrorFromSearch(oauthError, t.auth.errors.google),
+  )
   const {
     register,
     handleSubmit,
@@ -39,12 +44,18 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null)
+    if (!turnstile.headers) {
+      setServerError(t.auth.errors.captcha)
+      return
+    }
     const { error } = await signIn.email({
       email: values.email,
       password: values.password,
+      fetchOptions: { headers: turnstile.headers },
     })
     if (error) {
-      setServerError(authErrorMessage(t, error.code))
+      turnstile.reset()
+      setServerError(authErrorMessage(t, error))
       return
     }
     // A tab bounced here after its session ended still caches the previous
@@ -62,6 +73,8 @@ export function LoginForm() {
         </h1>
         <p className="text-muted-foreground mt-1">{t.auth.login.subtitle}</p>
       </div>
+
+      <GoogleSignIn errorPath="/login" onError={setServerError} />
 
       <FieldGroup>
         <Field data-invalid={!!errors.email}>
@@ -103,14 +116,18 @@ export function LoginForm() {
         </p>
       )}
 
-      <Button
-        type="submit"
-        className="h-11 w-full text-base"
-        disabled={isSubmitting}
-      >
-        {isSubmitting && <Spinner />}
-        {t.auth.login.submit}
-      </Button>
+      <div>
+        {/* Usually empty: Turnstile only shows a checkbox when unsure. */}
+        <div ref={turnstile.ref} className="*:mb-3" />
+        <Button
+          type="submit"
+          className="h-11 w-full text-base"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner />}
+          {t.auth.login.submit}
+        </Button>
+      </div>
 
       <p className="text-muted-foreground text-center text-sm">
         {t.auth.login.noAccount}{' '}

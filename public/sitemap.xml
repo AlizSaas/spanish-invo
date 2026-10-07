@@ -1,39 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Public, indexable pages only. Each one sets a matching canonical link
+  (pageUrl in src/lib/constants.ts). Update <lastmod> when a page's content
+  changes; Google ignores <priority> and <changefreq>, so they are omitted.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://facturafacilapp.com/</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://facturafacilapp.com/signup</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://facturafacilapp.com/login</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://facturafacilapp.com/privacy</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://facturafacilapp.com/terms</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://facturafacilapp.com/sms-consent</loc>
     <lastmod>2026-10-05</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
 </urlset>

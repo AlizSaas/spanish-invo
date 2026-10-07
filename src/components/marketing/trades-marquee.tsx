@@ -34,7 +34,8 @@ export function TradesMarquee() {
         </p>
       </div>
 
-      <div className="group mt-10 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] motion-reduce:overflow-x-auto">
+      {/* overflow-hidden: the mask only hides the off-screen cards visually; without it the page scrolls sideways. */}
+      <div className="group mt-10 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] motion-reduce:overflow-x-auto">
         <div className="animate-marquee flex w-max group-hover:[animation-play-state:paused] motion-reduce:animate-none">
           {[false, true].map((copy) => (
             // The second copy only exists to make the loop seamless.

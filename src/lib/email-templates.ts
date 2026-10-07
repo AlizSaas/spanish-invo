@@ -15,7 +15,15 @@ interface EmailCopy {
   text: string
 }
 
-const firstName = (name: string) => name.split(' ')[0] || ''
+/**
+ * Greeting name. Signup doesn't verify the address, so whoever registers an
+ * email picks the name its owner is greeted with: keep one short word, and
+ * strip control characters and what mail clients would turn into a link.
+ */
+const firstName = (name: string) =>
+  (name.trim().split(/\s+/)[0] ?? '')
+    .replace(/[\p{Cc}\p{Cf}./:@\\]/gu, '')
+    .slice(0, 30)
 
 export function welcomeEmail(opts: {
   appName: string

@@ -68,7 +68,7 @@ export function ResetPasswordForm({
       token,
     })
     if (error) {
-      setServerError(authErrorMessage(t, error.code))
+      setServerError(authErrorMessage(t, error))
       return
     }
     toast.success(t.auth.reset.success)

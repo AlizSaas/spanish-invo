@@ -26,7 +26,8 @@ export function renderDocumentHtml(
   const date = (iso: string) =>
     formatDate(iso, { language: lang, timezone: tz })
   const isEstimate = doc.type === 'estimate'
-  const logo = opts.logoDataUrl ?? doc.business.logoUrl
+  // Inlined only: the renderer refuses every network request (api/pdf/$token.ts).
+  const logo = opts.logoDataUrl
 
   const stamp =
     doc.status === 'paid'

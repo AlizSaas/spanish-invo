@@ -56,6 +56,9 @@ export const onboardingSchema = z.object({
 export type OnboardingFormInput = z.input<typeof onboardingSchema>
 export type OnboardingInput = z.output<typeof onboardingSchema>
 
+/** Next document number. Postgres integer, with room left to keep counting. */
+const nextNumberSchema = z.number().int().positive().max(99_999_999)
+
 /** Everything editable later from the Settings page. All optional (PATCH semantics). */
 export const updateSettingsSchema = z.object({
   businessName: z.string().trim().min(2).max(120).optional(),
@@ -63,6 +66,7 @@ export const updateSettingsSchema = z.object({
   businessEmail: z
     .string()
     .trim()
+    .max(254)
     .email()
     .nullable()
     .optional()
@@ -78,8 +82,8 @@ export const updateSettingsSchema = z.object({
   defaultTaxRate: z.number().min(0).max(100).optional(),
   defaultNotes: optionalText(1000),
   invoicePrefix: prefixSchema.optional(),
-  nextInvoiceNumber: z.number().int().positive().optional(),
+  nextInvoiceNumber: nextNumberSchema.optional(),
   estimatePrefix: prefixSchema.optional(),
-  nextEstimateNumber: z.number().int().positive().optional(),
+  nextEstimateNumber: nextNumberSchema.optional(),
 })
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>

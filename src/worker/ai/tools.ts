@@ -25,13 +25,20 @@ import {
   invoices,
 } from '@/db/schema'
 import {
+  DEFAULT_TIMEZONE,
   DOCUMENT_TYPES,
   INVOICE_EVENT_TYPES,
   INVOICE_STATUSES,
+  LANGUAGES,
 } from '@/lib/constants'
-import { DATE_ONLY, addDays, dateOnlyToDb } from '@/lib/dates'
+import { DATE_ONLY, addDays, dateOnlyToDb, todayInZone } from '@/lib/dates'
+import { resolveDocumentDraft } from '@/lib/document-draft'
+import { assertCanCreateDocument } from '@/lib/plan'
+import { clientInputSchema } from '@/lib/validators/clients'
+import { documentInputSchema } from '@/lib/validators/documents'
 import { docPath } from '@/components/documents/doc-link'
-import { semanticSearch } from '@/services/vectors'
+import { insertDocument } from '@/data/documents/helpers'
+import { semanticSearch, tryIndexDocument } from '@/services/vectors'
 
 export interface ToolContext {
   db: Database
@@ -64,9 +71,6 @@ const PERIODS = [
 ] as const
 type Period = (typeof PERIODS)[number]
 
-/** yyyy-mm-dd for "now" in the given time zone. */
-const todayIn = (tz: string) =>
-  new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(new Date())
 const startOfMonth = (d: string) => `${d.slice(0, 7)}-01`
 const endOfMonth = (d: string) => {
   const [y, m] = d.split('-').map(Number)
@@ -83,7 +87,7 @@ function resolvePeriod(
   to: string | undefined,
   tz: string,
 ): { from: string; to: string } {
-  const today = todayIn(tz)
+  const today = todayInZone(tz)
   switch (period) {
     case 'today':
       return { from: today, to: today }
@@ -186,16 +190,159 @@ async function findClients(ctx: ToolContext, query: string, limit = 10) {
     .limit(limit)
 }
 
+// --- Write tools: inputs, validation and idempotency -------------------------
+
 /**
- * Read-only tools the assistant can call. Everything is scoped to the signed-in
- * owner (userId), so the model can never see another business's data.
+ * Validation messages for the model, not the owner: the SDK hands them back as
+ * a tool error, and the model turns them into a question for the user.
+ */
+const CLIENT_ISSUES: Record<string, string> = {
+  'phone.needCountry':
+    'The phone number has no country code. Ask which country it is from (+1 United States, +52 Mexico…) unless the user already said, then retry with the code.',
+  'clients.invalidPhone':
+    'That phone number is not valid for its country. Ask the user to check the digits.',
+  'clients.email': 'That email address is not valid. Ask the user to check it.',
+  'clients.contactRequired':
+    'A client needs a phone (preferred: invoices are sent over WhatsApp) or an email. Ask the user for one.',
+}
+
+const createClientInput = z
+  .object({
+    name: z.string().trim().min(1).max(120).describe('Person or business name'),
+    phone: z
+      .string()
+      .trim()
+      .max(30)
+      .optional()
+      .describe(
+        'International format with the country code, e.g. "+1 502 555 0100" or "+52 55 1234 5678"',
+      ),
+    email: z.string().trim().max(254).optional(),
+    company: z.string().trim().max(120).optional(),
+    address: z.string().trim().max(500).optional(),
+    notes: z.string().trim().max(2000).optional(),
+    preferredLanguage: z
+      .enum(LANGUAGES)
+      .optional()
+      .describe(
+        'Language of this client’s invoices. Omit unless the user said or the client clearly speaks it.',
+      ),
+  })
+  // Same rules as the client form, so a bad phone fails before the confirm card.
+  .superRefine((input, ctx) => {
+    const parsed = clientInputSchema.safeParse(input)
+    if (parsed.success) return
+    for (const issue of parsed.error.issues) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: issue.path,
+        message: CLIENT_ISSUES[issue.message] ?? issue.message,
+      })
+    }
+  })
+
+const createDocumentInput = z.object({
+  type: z.enum(DOCUMENT_TYPES).describe('"estimate" for a quote'),
+  clientId: z
+    .string()
+    .min(1)
+    .describe('id returned by searchClients or createClient'),
+  items: z
+    .array(
+      z.object({
+        description: z.string().trim().min(1).max(500),
+        quantity: z.number().positive().max(999_999),
+        unitPrice: z
+          .number()
+          .min(0)
+          .max(99_999_999)
+          .describe('Price of ONE unit, before tax'),
+        taxRate: z
+          .number()
+          .min(0)
+          .max(100)
+          .optional()
+          .describe('Percent. Omit to use the business default'),
+      }),
+    )
+    .min(1)
+    .max(50),
+  dueDate: z
+    .string()
+    .regex(DATE_ONLY)
+    .optional()
+    .describe(
+      'yyyy-mm-dd. Omit to use the business default terms (estimates: valid 30 days)',
+    ),
+  notes: z
+    .string()
+    .trim()
+    .max(2000)
+    .optional()
+    .describe('Shown on the document. Omit to use the business default notes'),
+  language: z
+    .enum(LANGUAGES)
+    .optional()
+    .describe('Omit to use the client’s language'),
+})
+
+/**
+ * Runs a write once per tool call. The client replays the whole conversation
+ * on every request, so a replayed approval must return the first result
+ * instead of creating a second invoice.
+ */
+async function once<T>(
+  ctx: ToolContext,
+  toolCallId: string,
+  run: () => Promise<T>,
+): Promise<T> {
+  const key = `ai-tool:${ctx.userId}:${toolCallId}`
+  const done = await ctx.env.KV.get<T>(key, 'json')
+  if (done) return done
+  const result = await run()
+  try {
+    await ctx.env.KV.put(key, JSON.stringify(result), {
+      expirationTtl: 7 * 24 * 60 * 60,
+    })
+  } catch (err) {
+    // The write already happened; failing now would invite a retry.
+    console.error(
+      JSON.stringify({
+        level: 'warn',
+        msg: 'ai tool idempotency',
+        error: err instanceof Error ? err.message : String(err),
+      }),
+    )
+  }
+  return result
+}
+
+/** Free-plan monthly allowance, without throwing. */
+export async function canCreateDocument(
+  ctx: Pick<ToolContext, 'db' | 'userId'>,
+  type: (typeof DOCUMENT_TYPES)[number],
+): Promise<boolean> {
+  try {
+    await assertCanCreateDocument(ctx.db, ctx.userId, type)
+    return true
+  } catch (err) {
+    if (err instanceof Error && err.message === 'PLAN_LIMIT') return false
+    throw err
+  }
+}
+
+/**
+ * Tools the assistant can call. Everything is scoped to the signed-in owner
+ * (userId), so the model can never see another business's data. The two write
+ * tools (createClient, createDocument) only run after the owner approves a
+ * confirmation card.
  */
 export function createInvoiceTools(ctx: ToolContext) {
   const currency = ctx.settings?.defaultCurrency ?? 'USD'
 
   const searchClients = tool({
     description:
-      'Find clients by (partial) name, company, phone or email. Use this first when the user mentions a person or business name.',
+      'Find clients by (partial) name, company, phone or email. Use this first when the user mentions a person or business name, and always before createClient.',
     inputSchema: z.object({
       query: z
         .string()
@@ -821,6 +968,99 @@ export function createInvoiceTools(ctx: ToolContext) {
     },
   })
 
+  const createClient = tool({
+    description:
+      'Create a new client (customer). Before calling: run searchClients so you do not create a duplicate, and collect the name plus a phone or email in ONE short question. The owner sees a confirmation card and must approve; nothing is saved before that.',
+    inputSchema: createClientInput,
+    execute: async (input, { toolCallId }) =>
+      once(ctx, toolCallId, async () => {
+        const data = clientInputSchema.parse({
+          ...input,
+          preferredLanguage:
+            input.preferredLanguage ?? ctx.settings?.defaultInvoiceLanguage,
+        })
+        const columns = {
+          id: true,
+          name: true,
+          company: true,
+          phone: true,
+          email: true,
+          preferredLanguage: true,
+        } as const
+        // Same phone or email = same person: reuse instead of duplicating.
+        const sameContact = [
+          data.phone ? eq(clients.phone, data.phone) : undefined,
+          data.email ? eq(clients.email, data.email) : undefined,
+        ].filter((c) => c !== undefined)
+        const existing =
+          sameContact.length > 0
+            ? await ctx.db.query.clients.findFirst({
+                where: and(eq(clients.userId, ctx.userId), or(...sameContact)),
+                columns,
+              })
+            : undefined
+        if (existing) return { status: 'existing' as const, client: existing }
+
+        const [created] = await ctx.db
+          .insert(clients)
+          .values({ ...data, userId: ctx.userId })
+          .returning({
+            id: clients.id,
+            name: clients.name,
+            company: clients.company,
+            phone: clients.phone,
+            email: clients.email,
+            preferredLanguage: clients.preferredLanguage,
+          })
+        return { status: 'created' as const, client: created }
+      }),
+  })
+
+  const createDocument = tool({
+    description:
+      'Create an invoice or estimate as a draft for an existing client. Totals, tax, number, currency and default terms are computed by the app: never compute them yourself. The owner sees a preview card and must approve; after that the app shows a Share card (WhatsApp, Messenger, link).',
+    inputSchema: createDocumentInput,
+    execute: async (input, { toolCallId }) =>
+      once(ctx, toolCallId, async () => {
+        if (!ctx.settings) throw new Error('SETTINGS_MISSING')
+        const client = await ctx.db.query.clients.findFirst({
+          where: and(
+            eq(clients.id, input.clientId),
+            eq(clients.userId, ctx.userId),
+          ),
+          columns: {
+            id: true,
+            name: true,
+            phone: true,
+            preferredLanguage: true,
+          },
+        })
+        if (!client) return { status: 'client_not_found' as const }
+        if (!(await canCreateDocument(ctx, input.type))) {
+          return { status: 'plan_limit' as const, type: input.type }
+        }
+
+        const data = documentInputSchema.parse(
+          resolveDocumentDraft(input, {
+            settings: ctx.settings,
+            clientLanguage: client.preferredLanguage,
+            today: todayInZone(ctx.settings.timezone || DEFAULT_TIMEZONE),
+          }),
+        )
+        const doc = await ctx.db.transaction((tx) =>
+          insertDocument(tx, ctx.userId, data),
+        )
+        await tryIndexDocument(ctx.env, ctx.db, doc.id)
+        return {
+          status: 'created' as const,
+          document: {
+            ...summarize({ ...doc, client }),
+            clientPhone: client.phone,
+          },
+        }
+      }),
+  })
+
   return {
     searchClients,
     listDocuments,
@@ -831,6 +1071,8 @@ export function createInvoiceTools(ctx: ToolContext) {
     getRevenueReport,
     listClients,
     getRecentActivity,
+    createClient,
+    createDocument,
   }
 }
 

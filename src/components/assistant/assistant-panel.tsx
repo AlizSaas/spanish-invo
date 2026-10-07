@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DefaultChatTransport } from 'ai'
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+} from 'ai'
 import {
   History,
   Maximize2,
@@ -13,6 +16,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ToolResult } from './tool-results'
+import { WriteToolResult, isWriteToolPart } from './write-tool-cards'
 import type { AssistantMessage, AssistantToolPart } from './types'
 import type { Dictionary } from '@/lib/i18n'
 import {
@@ -36,6 +40,8 @@ import {
 import { Shimmer } from '@/components/ai-elements/shimmer'
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion'
 import { isPlanLimitError } from '@/components/billing/upgrade-dialog'
+import { clientKeys } from '@/data/clients/queries'
+import { documentKeys } from '@/data/documents/queries'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -163,14 +169,35 @@ function ChatSession({
     [],
   )
 
-  const { messages, sendMessage, status, stop, error, clearError } =
-    useChat<AssistantMessage>({
-      id: session.id,
-      messages: session.initialMessages,
-      transport,
-      onFinish: () =>
-        queryClient.invalidateQueries({ queryKey: conversationKeys.all }),
-    })
+  const {
+    messages,
+    sendMessage,
+    status,
+    stop,
+    error,
+    clearError,
+    addToolApprovalResponse,
+  } = useChat<AssistantMessage>({
+    id: session.id,
+    messages: session.initialMessages,
+    transport,
+    // Confirm / Cancel on a card finishes the same turn on the server.
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+    onFinish: ({ message }) => {
+      void queryClient.invalidateQueries({ queryKey: conversationKeys.all })
+      const wrote = message.parts.some(
+        (p) =>
+          (p.type === 'tool-createClient' ||
+            p.type === 'tool-createDocument') &&
+          p.state === 'output-available',
+      )
+      if (wrote) {
+        void queryClient.invalidateQueries({ queryKey: clientKeys.all })
+        void queryClient.invalidateQueries({ queryKey: documentKeys.all })
+        void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      }
+    },
+  })
 
   const ask = useCallback(
     (text: string) => {
@@ -180,6 +207,21 @@ function ChatSession({
       void sendMessage({ text: trimmed })
     },
     [sendMessage, clearError],
+  )
+
+  const onApproval = useCallback(
+    (id: string, approved: boolean) => {
+      clearError()
+      void addToolApprovalResponse({
+        id,
+        approved,
+        // Tells the model this was a choice, not a failure.
+        reason: approved
+          ? undefined
+          : 'The user pressed Cancel on the confirmation card.',
+      })
+    },
+    [addToolApprovalResponse, clearError],
   )
 
   // Out of free questions: offer Pro instead of an error line in the chat.
@@ -192,8 +234,16 @@ function ChatSession({
 
   const busy = status === 'submitted' || status === 'streaming'
   const lastMessage = messages.at(-1)
-  // Navigating away from a result on a phone should close the overlay.
-  const onNavigate = isMobile ? closeAssistant : undefined
+  // A confirmation card is waiting: a new question now would leave that tool
+  // call without an answer, so the owner confirms or cancels first.
+  const awaitingApproval =
+    !busy &&
+    lastMessage?.role === 'assistant' &&
+    lastMessage.parts.some(
+      (p) => 'state' in p && p.state === 'approval-requested',
+    )
+  // Opening a record from a card takes the owner to that page, so get out of the way.
+  const onNavigate = closeAssistant
 
   return (
     <>
@@ -310,7 +360,14 @@ function ChatSession({
                         }
                         if (part.type.startsWith('tool-')) {
                           const toolPart = part as AssistantToolPart
-                          return (
+                          return isWriteToolPart(toolPart) ? (
+                            <WriteToolResult
+                              key={toolPart.toolCallId}
+                              part={toolPart}
+                              onApproval={onApproval}
+                              onNavigate={onNavigate}
+                            />
+                          ) : (
                             <ToolResult
                               key={toolPart.toolCallId}
                               part={toolPart}
@@ -346,7 +403,7 @@ function ChatSession({
         </Conversation>
 
         <div className="border-t p-3">
-          {messages.length > 0 && !busy && (
+          {messages.length > 0 && !busy && !awaitingApproval && (
             <Suggestions className="mb-2">
               {t.assistant.suggestions.slice(0, 3).map((s) => (
                 <Suggestion
@@ -358,10 +415,19 @@ function ChatSession({
               ))}
             </Suggestions>
           )}
-          <PromptInput onSubmit={({ text }) => ask(text)}>
+          <PromptInput
+            onSubmit={({ text }) => {
+              if (!awaitingApproval) ask(text)
+            }}
+          >
             <PromptInputBody>
               <PromptInputTextarea
-                placeholder={t.assistant.placeholder}
+                placeholder={
+                  awaitingApproval
+                    ? t.assistant.write.awaitingApproval
+                    : t.assistant.placeholder
+                }
+                disabled={awaitingApproval}
                 autoFocus
               />
             </PromptInputBody>
@@ -369,7 +435,11 @@ function ChatSession({
               <span className="text-muted-foreground px-1 text-[11px]">
                 {t.assistant.hint}
               </span>
-              <PromptInputSubmit status={status} onStop={stop} />
+              <PromptInputSubmit
+                status={status}
+                onStop={stop}
+                disabled={awaitingApproval}
+              />
             </PromptInputFooter>
           </PromptInput>
         </div>

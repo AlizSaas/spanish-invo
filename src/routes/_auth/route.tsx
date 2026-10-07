@@ -32,8 +32,20 @@ function AuthLayout() {
             {t.landing.heroTitle}
           </h2>
           <p className="mt-4 text-lg/relaxed text-white/80">
-            {t.common.tagline}
+            {t.landing.heroBody}
           </p>
+          <p className="mt-8 text-sm text-white/70">{t.landing.asksAuth}</p>
+          {/* Example prompts, drawn like messages sent to the assistant. */}
+          <ul className="mt-3 flex flex-col items-start gap-2">
+            {[4, 0, 2].map((i) => (
+              <li
+                key={i}
+                className="rounded-lg rounded-bl-sm bg-white/15 px-4 py-2.5 text-sm"
+              >
+                {t.landing.asks[i]}
+              </li>
+            ))}
+          </ul>
         </div>
         <p className="relative text-sm text-white/60">{t.landing.forWho}</p>
       </aside>

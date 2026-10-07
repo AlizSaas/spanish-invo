@@ -13,6 +13,8 @@ export const Route = createFileRoute('/api/logo/$userId')({
         obj.writeHttpMetadata(headers)
         headers.set('etag', obj.httpEtag)
         headers.set('cache-control', 'public, max-age=3600')
+        // User-uploaded bytes: even if opened directly, nothing in them runs.
+        headers.set('content-security-policy', "default-src 'none'; sandbox")
         return new Response(obj.body, { headers })
       },
     },

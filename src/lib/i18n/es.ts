@@ -5,8 +5,7 @@
 export const es = {
   common: {
     appName: 'Factura Fácil',
-    tagline:
-      'Facturas profesionales por WhatsApp y Messenger, sin complicaciones.',
+    tagline: 'Facturas hechas con IA, enviadas por WhatsApp y Messenger.',
     save: 'Guardar',
     saving: 'Guardando…',
     cancel: 'Cancelar',
@@ -60,23 +59,58 @@ export const es = {
     account: 'Cuenta',
   },
   landing: {
-    heroTitle: 'Cobra más rápido. Factura por WhatsApp y Messenger.',
+    heroTitle: 'Cuéntale el trabajo. La IA hace la factura.',
     heroBody:
-      'Crea facturas y presupuestos profesionales en español o inglés y envíalos directo al WhatsApp o Messenger de tu cliente. Sin tarjetas, sin comisiones: te pagan por Zelle, Cash App, efectivo o cheque y tú marcas la factura como pagada.',
+      'Con tus palabras. La IA prepara el cliente y la factura; tú la revisas y la mandas por WhatsApp.',
     ctaPrimary: 'Empezar gratis',
     ctaSecondary: 'Ya tengo cuenta',
-    feature1Title: 'Listo en 2 minutos',
-    feature1Body: 'Pon el nombre de tu negocio y cómo te pagan. Eso es todo.',
-    feature2Title: 'Envía por WhatsApp o Messenger',
-    feature2Body:
-      'Tu cliente abre un enlace limpio con la factura y puede bajar el PDF.',
-    feature3Title: 'Tú controlas el cobro',
-    feature3Body:
-      'Sin procesadores de pago. Marcas cada factura como pagada cuando te llega el dinero.',
     forWho: 'Hecho para jardineros, limpieza, mecánicos, construcción y más.',
-    demoTitle: 'Mira cómo funciona',
+    // The hero's assistant demo. Same flow and wording as the real assistant.
+    chat: {
+      label:
+        'Ejemplo: el asistente de IA convierte un mensaje en una factura de $200 para una clienta nueva, lista para mandar por WhatsApp.',
+      prompt:
+        'Factura a María González, 305 555 0142: corte de césped $120 y poda de arbustos $80.',
+      reply:
+        'María es clienta nueva, así que también la agrego. Esta es la factura:',
+      client: 'María González',
+      newClient: 'Nueva',
+      items: ['Corte de césped', 'Poda de arbustos'],
+      replay: 'Ver de nuevo',
+    },
+    asksTitle: 'Pregúntale lo que sea de tu negocio',
+    asksBody:
+      'Conoce tus clientes y tus facturas, así que preguntas con tus palabras en vez de buscar.',
+    asks: [
+      '¿Quién me debe dinero?',
+      'Presupuesto para la cocina de Pedro: azulejo $1,800',
+      '¿Cuánto cobré este mes?',
+      '¿Qué facturas están vencidas?',
+      'Factura a Luis por cambio de aceite, $65',
+      '¿Cuánto le cobré a la familia Ramírez la última vez?',
+      'Agrega un cliente: Ana Torres, 786 555 0199',
+      '¿Cuánto facturé en septiembre?',
+    ],
+    asksAuth: 'Pídele cosas como:',
+    stepsTitle: 'De un mensaje a tu pago',
+    steps: [
+      {
+        title: 'Cuéntale el trabajo',
+        body: 'Escríbelo como un mensaje a un ayudante. Si el cliente es nuevo, la IA lo agrega.',
+      },
+      {
+        title: 'Revisa y confirma',
+        body: 'Primero ves el cliente, los trabajos y el total. No se guarda nada hasta que dices que sí.',
+      },
+      {
+        title: 'Mándala por WhatsApp',
+        body: 'Tu cliente abre un enlace limpio con el PDF y te paga por Zelle, Cash App, efectivo o cheque. Sin comisiones.',
+      },
+    ],
+    stepsManual: '¿Prefieres llenarla tú? El formulario de factura sigue ahí.',
+    demoTitle: 'Mira a la IA hacer una factura',
     demoSubtitle:
-      'De cero a una factura en el WhatsApp de tu cliente, en menos de lo que dura un café.',
+      'Dos minutos, de principio a fin: de un mensaje escrito a una factura en el WhatsApp de tu cliente.',
     demoCta: 'Mira el demo de 2 minutos',
     demoSoon: 'Video próximamente (agrega el ID de YouTube en demo-video.tsx)',
     tradesTitle: 'Hecho para tu oficio',
@@ -84,7 +118,7 @@ export const es = {
     trades: [
       {
         trade: 'Jardinería',
-        body: 'Termina el corte, manda la factura por WhatsApp desde la camioneta y sigue con el siguiente jardín.',
+        body: 'Termina el corte, dile a la IA qué hiciste y la factura sale por WhatsApp antes de llegar al siguiente jardín.',
       },
       {
         trade: 'Limpieza',
@@ -92,11 +126,11 @@ export const es = {
       },
       {
         trade: 'Mecánicos',
-        body: 'Detalla piezas y mano de obra para que el cliente vea exactamente qué paga.',
+        body: 'Escribe piezas y mano de obra en un mensaje; la IA arma las líneas para que el cliente vea qué paga.',
       },
       {
         trade: 'Construcción',
-        body: 'Manda el presupuesto primero y conviértelo en factura con un toque cuando lo aprueben.',
+        body: 'Pídele el presupuesto a la IA y conviértelo en factura con un toque cuando lo aprueben.',
       },
       {
         trade: 'Pintores',
@@ -115,7 +149,7 @@ export const es = {
   auth: {
     login: {
       title: 'Bienvenido de nuevo',
-      subtitle: 'Entra para ver tus facturas',
+      subtitle: 'Entra y pídele a la IA tu próxima factura.',
       email: 'Correo electrónico',
       password: 'Contraseña',
       submit: 'Entrar',
@@ -125,7 +159,7 @@ export const es = {
     },
     signup: {
       title: 'Crea tu cuenta',
-      subtitle: 'Gratis. Sin tarjeta de crédito.',
+      subtitle: 'Gratis y sin tarjeta. Tu asistente de IA te espera adentro.',
       name: 'Tu nombre',
       email: 'Correo electrónico',
       password: 'Contraseña',
@@ -151,11 +185,17 @@ export const es = {
       mismatch: 'Las contraseñas no coinciden',
       invalidToken: 'Este enlace ya no es válido. Pide uno nuevo.',
     },
+    google: 'Continuar con Google',
+    or: 'o',
     errors: {
       invalidCredentials: 'Correo o contraseña incorrectos',
       emailInUse: 'Ya existe una cuenta con ese correo',
       weakPassword: 'La contraseña debe tener al menos 8 caracteres',
       generic: 'No pudimos completar la acción. Inténtalo de nuevo.',
+      google: 'No pudimos entrar con Google. Inténtalo de nuevo.',
+      tooMany: 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.',
+      captcha:
+        'No pudimos comprobar que no eres un robot. Espera un momento e inténtalo de nuevo.',
     },
   },
   onboarding: {
@@ -448,8 +488,8 @@ export const es = {
     open: 'Preguntar a la IA',
     title: 'Asistente IA',
     subtitle: 'Facturas, clientes y cobros',
-    placeholder: 'Pregunta sobre tus facturas…',
-    hint: 'Enter envía · Shift+Enter nueva línea. El asistente solo consulta; no cambia nada.',
+    placeholder: 'Pregunta o pide: “crea una factura para Juan”…',
+    hint: 'Enter envía · Shift+Enter nueva línea. Nada se guarda sin que lo confirmes.',
     expand: 'Pantalla completa',
     collapse: 'Panel lateral',
     clear: 'Nueva conversación',
@@ -458,13 +498,14 @@ export const es = {
     searching: 'Consultando tus datos…',
     emptyTitle: '¿En qué te ayudo?',
     emptyBody:
-      'Pregunta con tus palabras. Busco en tus clientes, facturas y presupuestos y te muestro los resultados.',
+      'Pídelo con tus palabras: consulto tus clientes y facturas, o creo un cliente y su factura por ti. Tú confirmas antes de guardar.',
     suggestions: [
-      '¿Cuánto cobré hoy?',
+      'Crea una factura para un cliente nuevo',
       '¿Quién me debe dinero?',
+      '¿Cuánto cobré hoy?',
+      'Haz un presupuesto',
       '¿Qué facturas están vencidas?',
       '¿Cuánto facturé este mes?',
-      '¿Alguien abrió mis facturas esta semana?',
     ],
     tools: {
       searchClients: 'Buscar clientes',
@@ -476,6 +517,32 @@ export const es = {
       getRevenueReport: 'Reporte de ingresos',
       listClients: 'Clientes y saldos',
       getRecentActivity: 'Actividad reciente',
+      createClient: 'Crear cliente',
+      createDocument: 'Crear documento',
+    },
+    write: {
+      preparing: 'Preparando…',
+      saving: 'Guardando…',
+      approve: 'Sí, crear',
+      confirmClient: '¿Creo este cliente?',
+      confirmInvoice: '¿Creo esta factura?',
+      confirmEstimate: '¿Creo este presupuesto?',
+      client: 'Cliente',
+      language: 'Idioma',
+      draftNote:
+        'Se guarda como borrador: la puedes revisar o editar antes de enviarla.',
+      cancelled: 'Cancelado. No se guardó nada.',
+      failed: 'No se pudo guardar. Inténtalo de nuevo.',
+      clientCreated: 'Cliente creado',
+      clientExisting: 'Este cliente ya existía',
+      invoiceCreated: 'Factura creada (borrador)',
+      estimateCreated: 'Presupuesto creado (borrador)',
+      shareHint: 'Mándala por WhatsApp, Messenger o con un enlace.',
+      planLimit:
+        'Ya usaste los documentos del plan gratis de este mes. Con Pro creas todos los que quieras.',
+      seePro: 'Ver Pro',
+      clientNotFound: 'No encontré ese cliente.',
+      awaitingApproval: 'Confirma o cancela la tarjeta de arriba…',
     },
     collected: 'Cobrado',
     invoiced: 'Facturado',
@@ -558,7 +625,8 @@ export const es = {
     yearly: 'Anual',
     perMonth: '/mes',
     perYear: '/año',
-    trialNote: '14 días gratis. Cancela cuando quieras.',
+    trialNote:
+      '14 días gratis; después se renueva automáticamente hasta que canceles. Cancela cuando quieras.',
     limitReached:
       'Llegaste al límite del plan Gratis (3 facturas y 3 presupuestos al mes). Mejora a Pro para seguir.',
     limitTitle: 'Llegaste al límite del plan Gratis',

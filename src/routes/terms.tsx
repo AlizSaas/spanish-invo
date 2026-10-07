@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LegalPage } from '@/components/legal/legal-page'
+import { pageUrl } from '@/lib/constants'
 
 export const Route = createFileRoute('/terms')({
   head: () => ({
@@ -8,9 +9,11 @@ export const Route = createFileRoute('/terms')({
       {
         name: 'description',
         content:
-          'Condiciones de uso de Factura Fácil: cuentas, documentos, mensajes a clientes y responsabilidades.',
+          'Condiciones de uso de Factura Fácil: planes Free y Pro, prueba gratis, renovación, cancelación y reembolsos, documentos y mensajes a clientes.',
       },
+      { property: 'og:url', content: pageUrl('/terms') },
     ],
+    links: [{ rel: 'canonical', href: pageUrl('/terms') }],
   }),
   component: TermsPage,
 })

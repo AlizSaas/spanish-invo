@@ -36,6 +36,13 @@
       "when": 1791244474781,
       "tag": "0004_stripe_billing",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791396454639,
+      "tag": "0005_ai_usage",
+      "breakpoints": true
     }
   ]
 }

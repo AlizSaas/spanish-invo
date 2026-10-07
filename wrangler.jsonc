@@ -16,7 +16,7 @@
   // not match BETTER_AUTH_URL and would break sign-in there anyway.
   "workers_dev": false,
   "preview_urls": false,
-  // Daily overdue sweep — runs handleScheduled in src/server.ts. 11:00 UTC ≈ 6am Chicago.
+  // Daily overdue sweep + ai_usage pruning — `scheduled` in src/server.ts. 11:00 UTC ≈ 6am Chicago.
   "triggers": { "crons": ["0 11 * * *"] },
   // Naming rule: every Cloudflare resource for this app is prefixed "spanish-invo-"
   // (KV, R2, Durable Objects, Workflows, Hyperdrive, Queues). Never reuse resources from other projects.
@@ -63,6 +63,22 @@
       "name": "spanish-invo-welcome-email",
       "binding": "WELCOME_EMAIL_WORKFLOW",
       "class_name": "WelcomeEmailWorkflow",
+    },
+  ],
+  // Workers Rate Limiting — per-location counters checked in src/lib/rate-limit.ts.
+  // namespace_id is an account-wide integer: keep these unique across projects.
+  "ratelimits": [
+    {
+      // Password checks, emails, uploads, PDF renders, AI turns: 10/min per key.
+      "name": "RL_STRICT",
+      "namespace_id": "72001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+    {
+      // Every other request, per client IP. Flood protection, not a quota.
+      "name": "RL_GENERAL",
+      "namespace_id": "72002",
+      "simple": { "limit": 300, "period": 60 },
     },
   ],
   "vars": {

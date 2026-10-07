@@ -319,6 +319,10 @@ export const MessageBranchPage = ({
 export type MessageResponseProps = ComponentProps<typeof Streamdown>
 
 const streamdownPlugins = { cjk, code, math, mermaid }
+// Model output can echo text a stranger wrote (a client name, a note). An
+// image would load by itself and could carry data off in its URL; links at
+// least need a click.
+const streamdownDisallowed = ['img']
 
 export const MessageResponse = memo(
   ({ className, ...props }: MessageResponseProps) => (
@@ -328,6 +332,7 @@ export const MessageResponse = memo(
         className,
       )}
       plugins={streamdownPlugins}
+      disallowedElements={streamdownDisallowed}
       {...props}
     />
   ),

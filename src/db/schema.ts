@@ -403,6 +403,25 @@ export const aiMessages = pgTable(
   ],
 )
 
+/**
+ * One row per assistant model run, for the AI budget (see worker/routes/chat.ts).
+ * Kept apart from the chat history on purpose: deleting a conversation or
+ * replaying a message id must not hand the budget back. Pruned by the daily cron.
+ */
+export const aiUsage = pgTable(
+  'ai_usage',
+  {
+    id: id(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    /** Finishing an approved write rather than asking a new question. */
+    continuation: boolean('continuation').notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (t) => [index('idx_ai_usage_user_created').on(t.userId, t.createdAt)],
+)
+
 // ---------------------------------------------------------------------------
 // Inferred row types
 // ---------------------------------------------------------------------------

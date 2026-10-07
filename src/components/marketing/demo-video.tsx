@@ -9,7 +9,7 @@ import { useUiStore } from '@/stores/ui-store'
  * both languages use it; with neither, the section is hidden in production.
  */
 const DEMO_VIDEO: Record<'es' | 'en', string> = {
-  es: '',
+  es: '3kctIYz2RvM',
   en: '',
 }
 

@@ -18,15 +18,15 @@ export const lineItemSchema = z.object({
 
 export const documentInputSchema = z.object({
   type: z.enum(DOCUMENT_TYPES),
-  clientId: z.string().min(1, 'docs.builder.needClient'),
+  clientId: z.string().min(1, 'docs.builder.needClient').max(64),
   language: z.enum(LANGUAGES),
   issueDate: z.string().regex(DATE_ONLY),
   dueDate: z.string().regex(DATE_ONLY),
   currency: z.enum(CURRENCIES),
   items: z.array(lineItemSchema).min(1, 'docs.builder.needItem').max(100),
   discountType: z.enum(DISCOUNT_TYPES).nullable().optional(),
-  discountValue: z.number().min(0).nullable().optional(),
-  depositAmount: z.number().min(0).nullable().optional(),
+  discountValue: z.number().min(0).max(99_999_999).nullable().optional(),
+  depositAmount: z.number().min(0).max(99_999_999).nullable().optional(),
   notes: z.string().trim().max(2000).nullable().optional(),
   paymentInstructionsOverride: z
     .string()
@@ -38,11 +38,11 @@ export const documentInputSchema = z.object({
 export type DocumentInput = z.infer<typeof documentInputSchema>
 
 export const updateDocumentSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().min(1).max(64),
   data: documentInputSchema.omit({ type: true }),
 })
 
-export const documentIdSchema = z.object({ id: z.string().min(1) })
+export const documentIdSchema = z.object({ id: z.string().min(1).max(64) })
 
 export const listDocumentsSchema = z.object({
   type: z.enum(DOCUMENT_TYPES),
@@ -54,7 +54,7 @@ export const listDocumentsSchema = z.object({
 export type ListDocumentsInput = z.infer<typeof listDocumentsSchema>
 
 export const markPaidSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().min(1).max(64),
   paymentMethod: z.enum(PAYMENT_METHODS),
   paidAt: z.string().regex(DATE_ONLY).optional(),
 })
@@ -68,14 +68,14 @@ export const shareChannelSchema = z.enum([
 export type ShareChannel = z.infer<typeof shareChannelSchema>
 
 export const recordShareSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().min(1).max(64),
   channel: shareChannelSchema,
   message: z.string().trim().max(1200).optional(),
 })
 
 /** Share dialog: the message defaults to the document's language; the owner may switch it. */
 export const prepareShareSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().min(1).max(64),
   language: z.enum(LANGUAGES).optional(),
 })
 

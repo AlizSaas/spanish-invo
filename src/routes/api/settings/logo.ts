@@ -6,9 +6,9 @@ import { getAuth } from '@/lib/auth'
 import { getEnv } from '@/lib/env'
 import {
   LOGO_MAX_BYTES,
-  LOGO_TYPES,
   deleteLogo,
   putLogo,
+  sniffLogoType,
 } from '@/services/logo'
 
 async function requireUser(request: Request) {
@@ -23,21 +23,31 @@ export const Route = createFileRoute('/api/settings/logo')({
       /** multipart/form-data with a single `file` field */
       POST: async ({ request }) => {
         const user = await requireUser(request)
-        // Reject oversized uploads before buffering the multipart body.
+        // Reject oversized uploads before buffering the multipart body. Browsers
+        // always declare the length of a FormData upload.
         const declared = Number(request.headers.get('content-length') ?? 0)
+        if (!declared) {
+          return Response.json({ error: 'LENGTH_REQUIRED' }, { status: 411 })
+        }
         if (declared > LOGO_MAX_BYTES + 16 * 1024)
           return Response.json({ error: 'TOO_LARGE' }, { status: 413 })
         const form = await request.formData()
         const file = form.get('file')
         if (!(file instanceof File))
           return Response.json({ error: 'NO_FILE' }, { status: 400 })
-        if (!LOGO_TYPES.has(file.type))
-          return Response.json({ error: 'BAD_TYPE' }, { status: 415 })
         if (file.size > LOGO_MAX_BYTES)
           return Response.json({ error: 'TOO_LARGE' }, { status: 413 })
+        const type = await sniffLogoType(file)
+        if (!type) return Response.json({ error: 'BAD_TYPE' }, { status: 415 })
 
         const env = getEnv()
-        const logoUrl = await putLogo(env.STORAGE, user.id, file, env.IMAGES)
+        const logoUrl = await putLogo(
+          env.STORAGE,
+          user.id,
+          file,
+          type,
+          env.IMAGES,
+        )
         await getDb()
           .update(settings)
           .set({ logoUrl })

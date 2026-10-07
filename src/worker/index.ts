@@ -4,6 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import { requireUser } from './middleware/auth'
 import { chatRoute } from './routes/chat'
 import type { WorkerEnv } from './types'
+import { errorForLog } from '@/lib/log'
 
 /**
  * Hono app for endpoints that talk to external services (OpenAI today; room
@@ -36,7 +37,7 @@ worker.notFound((c) => c.json({ error: 'NOT_FOUND' }, 404))
 worker.onError((err, c) => {
   if (err instanceof HTTPException) return err.getResponse()
   console.error(
-    JSON.stringify({ level: 'error', msg: 'worker', error: err.message }),
+    JSON.stringify({ level: 'error', msg: 'worker', ...errorForLog(err) }),
   )
   // Never echo internal error text to the client.
   return c.json({ error: 'INTERNAL' }, 500)

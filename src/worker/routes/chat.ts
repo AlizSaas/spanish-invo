@@ -9,16 +9,19 @@ import {
 } from 'ai'
 import { and, eq, gt, sql } from 'drizzle-orm'
 import { buildInstructions } from '../ai/instructions'
-import { createInvoiceTools } from '../ai/tools'
+import { canCreateDocument, createInvoiceTools } from '../ai/tools'
 import type { UIMessage } from 'ai'
+import type { SQL } from 'drizzle-orm'
 import type { WorkerEnv } from '../types'
 import type { Database } from '@/db'
 import type { JsonValue } from '@/db/schema'
 import { getDb } from '@/db'
-import { aiConversations, aiMessages, settings } from '@/db/schema'
+import { aiConversations, aiMessages, aiUsage, settings } from '@/db/schema'
 import { refreshOverdue } from '@/data/documents/helpers'
 import { AI_MESSAGES_PER_HOUR } from '@/lib/constants'
+import { errorForLog } from '@/lib/log'
 import { FREE_LIMITS, getActivePlan } from '@/lib/plan'
+import { allowUser } from '@/lib/rate-limit'
 import { reindexUserDocuments } from '@/services/vectors'
 
 const MAX_HISTORY = 30
@@ -73,25 +76,96 @@ async function saveMessage(
     .where(eq(aiConversations.id, conversationId))
 }
 
+/**
+ * Per-account budget (the assistant runs on our OpenAI key): an hourly cap for
+ * everyone, plus a small monthly allowance on Free. Counts rows in ai_usage,
+ * which chat deletes and message-id replays can't touch.
+ *
+ * A new question needs room in the budget. Finishing an approved write doesn't,
+ * so nobody is stopped halfway through an invoice, but every model run counts
+ * toward a hard ceiling of twice the budget.
+ */
+async function checkQuota(
+  db: Database,
+  userId: string,
+  continuation: boolean,
+): Promise<'hour' | 'month' | null> {
+  const runs = (since: SQL) =>
+    db
+      .select({
+        questions: sql<number>`(count(*) filter (where not ${aiUsage.continuation}))::int`,
+        total: sql<number>`count(*)::int`,
+      })
+      .from(aiUsage)
+      .where(and(eq(aiUsage.userId, userId), since))
+      // An aggregate without GROUP BY always returns exactly one row.
+      .then(([row]) => row)
+  const fits = (used: { questions: number; total: number }, limit: number) =>
+    continuation ? used.total < limit * 2 : used.questions < limit
+
+  const hourAgo = new Date(Date.now() - 60 * 60 * 1000)
+  if (!fits(await runs(gt(aiUsage.createdAt, hourAgo)), AI_MESSAGES_PER_HOUR)) {
+    return 'hour'
+  }
+  const { plan } = await getActivePlan(db, userId)
+  if (
+    plan === 'free' &&
+    !fits(
+      await runs(sql`${aiUsage.createdAt} >= date_trunc('month', now())`),
+      FREE_LIMITS.aiQuestionsPerMonth,
+    )
+  ) {
+    return 'month'
+  }
+  return null
+}
+
+/**
+ * What the model may see from the client. People send text only: a file part
+ * would make OpenAI (or this Worker) fetch whatever URL the client names. The
+ * assistant's own turns keep their text and tool parts.
+ */
+function clientMessage(message: UIMessage): UIMessage {
+  const parts = message.parts.filter((p) =>
+    message.role === 'user'
+      ? p.type === 'text' && typeof p.text === 'string'
+      : p.type !== 'file' && !p.type.startsWith('source-'),
+  )
+  return { ...message, parts }
+}
+
 chatRoute.post('/chat', async (c) => {
   const env = c.env
   const apiKey = env.OPENAIAPIKEY
   if (!apiKey) {
-    return c.json(
-      { error: 'NOT_CONFIGURED', message: 'OPENAIAPIKEY is not set' },
-      503,
+    console.error(
+      JSON.stringify({
+        level: 'error',
+        msg: 'ai chat: OPENAIAPIKEY is not set',
+      }),
     )
+    return c.json({ error: 'NOT_CONFIGURED' }, 503)
   }
 
   const user = c.get('user')
+  // Burst cap per account; ai_usage below is the real budget.
+  if (!(await allowUser(env, 'ai', user.id))) {
+    return c.json({ error: 'RATE_LIMITED' }, 429)
+  }
   const db = getDb()
   const body = await c.req.json<ChatBody>()
   const locale = body.locale === 'en' ? 'en' : 'es'
   // Clients may only replay user/assistant turns: a "system" turn would
   // override the server instructions. Cap text so one request can't carry a novel.
   const history = (Array.isArray(body.messages) ? body.messages : [])
-    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .filter(
+      (m) =>
+        (m.role === 'user' || m.role === 'assistant') &&
+        typeof m.id === 'string' &&
+        Array.isArray(m.parts),
+    )
     .slice(-MAX_HISTORY)
+    .map(clientMessage)
   if (history.some((m) => textLength(m) > MAX_MESSAGE_CHARS)) {
     return c.json({ error: 'MESSAGE_TOO_LONG' }, 413)
   }
@@ -111,49 +185,32 @@ chatRoute.post('/chat', async (c) => {
     return c.json({ error: 'FORBIDDEN' }, 403)
   }
 
-  // Per-account budget: the assistant runs on our OpenAI key.
-  const since = new Date(Date.now() - 60 * 60 * 1000)
-  const usedThisHour = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(aiMessages)
-    .innerJoin(
-      aiConversations,
-      eq(aiMessages.conversationId, aiConversations.id),
-    )
-    .where(
-      and(
-        eq(aiConversations.userId, user.id),
-        eq(aiMessages.role, 'user'),
-        gt(aiMessages.createdAt, since),
+  // Approving or cancelling a confirmation card resubmits the conversation to
+  // finish the same turn. It isn't a new question if we really asked for
+  // approval and this request carries the answer; it still counts as a run.
+  const lastMessage = history.at(-1)
+  const isApprovalContinuation =
+    existing !== undefined &&
+    lastMessage?.role === 'assistant' &&
+    lastMessage.parts.some(
+      (p) => 'state' in p && p.state === 'approval-responded',
+    ) &&
+    (await db.query.aiMessages.findFirst({
+      where: and(
+        eq(aiMessages.id, lastMessage.id),
+        eq(aiMessages.conversationId, conversationId),
+        eq(aiMessages.role, 'assistant'),
+        sql`${aiMessages.parts} @> '[{"state":"approval-requested"}]'::jsonb`,
       ),
-    )
-    .then((rows) => rows.reduce((n, r) => n + r.n, 0))
-  if (usedThisHour >= AI_MESSAGES_PER_HOUR) {
-    return c.json({ error: 'RATE_LIMITED' }, 429)
-  }
+      columns: { id: true },
+    })) !== undefined
 
-  // Free plan: a small monthly allowance; Pro is unlimited (within the hourly cap).
-  const { plan } = await getActivePlan(db, user.id)
-  if (plan === 'free') {
-    const usedThisMonth = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(aiMessages)
-      .innerJoin(
-        aiConversations,
-        eq(aiMessages.conversationId, aiConversations.id),
-      )
-      .where(
-        and(
-          eq(aiConversations.userId, user.id),
-          eq(aiMessages.role, 'user'),
-          sql`${aiMessages.createdAt} >= date_trunc('month', now())`,
-        ),
-      )
-      .then((rows) => rows.reduce((n, r) => n + r.n, 0))
-    if (usedThisMonth >= FREE_LIMITS.aiQuestionsPerMonth) {
-      return c.json({ error: 'PLAN_LIMIT' }, 402)
-    }
-  }
+  const limited = await checkQuota(db, user.id, isApprovalContinuation)
+  if (limited === 'hour') return c.json({ error: 'RATE_LIMITED' }, 429)
+  if (limited === 'month') return c.json({ error: 'PLAN_LIMIT' }, 402)
+  await db
+    .insert(aiUsage)
+    .values({ userId: user.id, continuation: isApprovalContinuation })
 
   if (!existing) {
     await db
@@ -192,7 +249,21 @@ chatRoute.post('/chat', async (c) => {
       settings: s,
       baseUrl: env.BETTER_AUTH_URL.replace(/\/$/, ''),
     }),
+    // Writes wait for the owner's OK on a confirmation card. Over the Free
+    // allowance there is nothing to approve: the tool answers "plan_limit"
+    // straight away and the card offers the upgrade instead.
+    toolApproval: {
+      createClient: 'user-approval',
+      createDocument: async ({ type }) =>
+        (await canCreateDocument({ db, userId: user.id }, type))
+          ? 'user-approval'
+          : 'not-applicable',
+    },
+    // Signs each approval request so a client can't forge or edit an approval.
+    experimental_toolApprovalSecret: `ai-tool-approval:${env.BETTER_AUTH_SECRET}`,
     stopWhen: isStepCount(6),
+    // Per step, reasoning included: bounds what one run can cost.
+    maxOutputTokens: 4000,
     // Fast first token for the chat use case; reasoning models default to "medium".
     providerOptions: isReasoningModel
       ? { openai: { reasoningEffort: 'low', reasoningSummary: null } }
@@ -202,7 +273,8 @@ chatRoute.post('/chat', async (c) => {
         JSON.stringify({
           level: 'error',
           msg: 'ai chat',
-          error: String(error),
+          // Tool errors can be DB errors whose values are client/invoice data.
+          ...errorForLog(error),
         }),
       )
     },
@@ -222,7 +294,7 @@ chatRoute.post('/chat', async (c) => {
                 JSON.stringify({
                   level: 'error',
                   msg: 'ai persist',
-                  error: err instanceof Error ? err.message : String(err),
+                  ...errorForLog(err),
                 }),
               )
             },

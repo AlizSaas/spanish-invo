@@ -1,17 +1,31 @@
 import handler from '@tanstack/react-start/server-entry'
 import { and, eq, inArray, lt, sql } from 'drizzle-orm'
 import { createDb } from './db'
-import { invoices } from './db/schema'
+import { aiUsage, invoices } from './db/schema'
 import { createAuth } from './lib/auth'
 import { sendEmail } from './lib/email'
 import { passwordResetEmail } from './lib/email-templates'
+import { errorForLog } from './lib/log'
+import { rateLimit } from './lib/rate-limit'
 import { runWithRequestContext } from './lib/request-context'
+import { checkTurnstile } from './lib/turnstile'
 import { sendProThankYouEmail } from './services/billing-emails'
 import { WORKER_PREFIX, worker } from './worker'
 import type { RequestContext } from './lib/request-context'
 
 // Workflow classes must be exported from the main module so Cloudflare can find them.
 export { WelcomeEmailWorkflow } from './workflows/welcome-email'
+
+/** Hex SHA-256: keeps email addresses out of KV key names. */
+async function sha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(text),
+  )
+  return [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
 
 /**
  * Build the per-request services. Never cache these in module scope: Workers
@@ -31,7 +45,19 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
       // Typed as the literal from wrangler.jsonc; compare as a plain string.
       automaticTax: (env.STRIPE_AUTOMATIC_TAX as string) === 'true',
     },
+    google:
+      env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+        ? {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+          }
+        : undefined,
     sendResetPassword: async ({ email, name, url, language }) => {
+      // One reset email per address every two minutes, whoever asks: the form
+      // can't be used to flood someone's inbox. The response looks the same.
+      const key = `reset-mail:${await sha256(email.toLowerCase())}`
+      if (await env.KV.get(key)) return
+      await env.KV.put(key, '1', { expirationTtl: 120 })
       const mail = passwordResetEmail({
         appName: env.APP_NAME,
         name,
@@ -57,7 +83,7 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
             JSON.stringify({
               level: 'error',
               msg: 'welcome workflow',
-              error: err instanceof Error ? err.message : String(err),
+              ...errorForLog(err),
             }),
           )
         }),
@@ -72,7 +98,7 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
               JSON.stringify({
                 level: 'error',
                 msg: 'pro thank-you email',
-                error: err instanceof Error ? err.message : String(err),
+                ...errorForLog(err),
               }),
             )
           },
@@ -109,6 +135,13 @@ async function sweepOverdue(ctx: RequestContext) {
   )
 }
 
+/** The AI budget only looks back one calendar month; drop older runs. */
+async function pruneAiUsage(ctx: RequestContext) {
+  await ctx.db
+    .delete(aiUsage)
+    .where(lt(aiUsage.createdAt, sql`now() - interval '40 days'`))
+}
+
 /**
  * 301 www.<domain> → <domain> so sessions, trusted origins and SEO all see a
  * single origin. The canonical host is whatever BETTER_AUTH_URL points at.
@@ -136,7 +169,10 @@ function withSecurityHeaders(res: Response, pathname: string): Response {
     'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   )
   if (!h.has('Content-Security-Policy')) {
-    h.set('Content-Security-Policy', "frame-ancestors 'self'")
+    h.set(
+      'Content-Security-Policy',
+      "frame-ancestors 'self'; object-src 'none'; base-uri 'self'",
+    )
   }
   // Shared invoice pages and API responses must never show up in search results.
   if (pathname.startsWith('/i/') || pathname.startsWith('/api/')) {
@@ -146,11 +182,17 @@ function withSecurityHeaders(res: Response, pathname: string): Response {
 }
 
 export default {
-  fetch(request, env, ctx) {
+  async fetch(request, env, ctx) {
     const redirect = canonicalHostRedirect(request, env)
     if (redirect) return redirect
 
     const { pathname } = new URL(request.url)
+    // Before any DB or auth work, so floods are turned away cheaply.
+    const limited = await rateLimit(request, env, pathname)
+    if (limited) return withSecurityHeaders(limited, pathname)
+    const challenged = await checkTurnstile(request, env, pathname)
+    if (challenged) return withSecurityHeaders(challenged, pathname)
+
     const context = createContext(env, ctx)
     return runWithRequestContext(context, async () => {
       // External-service endpoints (AI chat) live in the Hono app under /api/ai/*.
@@ -162,6 +204,9 @@ export default {
   },
   scheduled(_controller, env, ctx) {
     const context = createContext(env, ctx)
-    return runWithRequestContext(context, () => sweepOverdue(context))
+    return runWithRequestContext(context, async () => {
+      await sweepOverdue(context)
+      await pruneAiUsage(context)
+    })
   },
 } satisfies ExportedHandler<Env>

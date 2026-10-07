@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link } from '@tanstack/react-router'
 import { MailCheck } from 'lucide-react'
+import { authErrorMessage } from './auth-errors'
+import { useTurnstile } from './turnstile'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -25,6 +27,8 @@ export function ForgotPasswordForm() {
   const t = useT()
   const locale = useUiStore((s) => s.locale)
   const [sent, setSent] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+  const turnstile = useTurnstile('reset')
   const {
     register,
     handleSubmit,
@@ -35,12 +39,25 @@ export function ForgotPasswordForm() {
   })
 
   const onSubmit = handleSubmit(async (values) => {
-    // Always show the same confirmation to avoid leaking which emails exist.
-    await requestPasswordReset({
+    setServerError(null)
+    if (!turnstile.headers) {
+      setServerError(t.auth.errors.captcha)
+      return
+    }
+    const { error } = await requestPasswordReset({
       email: values.email,
       redirectTo: '/reset-password',
-      fetchOptions: { headers: { [LOCALE_HEADER]: locale } },
+      fetchOptions: {
+        headers: { [LOCALE_HEADER]: locale, ...turnstile.headers },
+      },
     })
+    // Bot check or rate limit: nothing was sent, so say so. Any other outcome
+    // shows the same confirmation to avoid leaking which emails exist.
+    if (error?.status === 429 || error?.code === 'CAPTCHA_FAILED') {
+      turnstile.reset()
+      setServerError(authErrorMessage(t, error))
+      return
+    }
     setSent(true)
   })
 
@@ -83,14 +100,23 @@ export function ForgotPasswordForm() {
           <FieldError errors={[errors.email]} />
         </Field>
       </FieldGroup>
-      <Button
-        type="submit"
-        className="h-11 w-full text-base"
-        disabled={isSubmitting}
-      >
-        {isSubmitting && <Spinner />}
-        {t.auth.forgot.submit}
-      </Button>
+      {serverError && (
+        <p role="alert" className="text-destructive text-sm">
+          {serverError}
+        </p>
+      )}
+      <div>
+        {/* Usually empty: Turnstile only shows a checkbox when unsure. */}
+        <div ref={turnstile.ref} className="*:mb-3" />
+        <Button
+          type="submit"
+          className="h-11 w-full text-base"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner />}
+          {t.auth.forgot.submit}
+        </Button>
+      </div>
       <p className="text-center text-sm">
         <Link to="/login" className="text-primary font-medium hover:underline">
           {t.auth.forgot.backToLogin}

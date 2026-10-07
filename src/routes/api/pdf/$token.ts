@@ -3,10 +3,12 @@ import puppeteer from '@cloudflare/puppeteer'
 import { getDb } from '@/db'
 import { loadPublicDocument } from '@/data/public/public-document'
 import { getEnv } from '@/lib/env'
+import { errorForLog } from '@/lib/log'
 import { renderDocumentHtml } from '@/services/document-html'
 import { getLogoDataUrl } from '@/services/logo'
 
 const DAY = 60 * 60 * 24
+const TOKEN = /^[A-Za-z0-9_-]{8,128}$/
 
 function pdfResponse(
   body: ArrayBuffer | Uint8Array,
@@ -29,6 +31,9 @@ export const Route = createFileRoute('/api/pdf/$token')({
     handlers: {
       GET: async ({ params }) => {
         const env = getEnv()
+        if (!TOKEN.test(params.token)) {
+          return new Response('Not found', { status: 404 })
+        }
         const doc = await loadPublicDocument(getDb(), params.token, {
           recordPdf: true,
         })
@@ -43,10 +48,35 @@ export const Route = createFileRoute('/api/pdf/$token')({
         const logoDataUrl = await getLogoDataUrl(env.STORAGE, doc.ownerId)
         const html = renderDocumentHtml(doc, { logoDataUrl })
 
-        const browser = await puppeteer.launch(env.BROWSER)
+        let browser: Awaited<ReturnType<typeof puppeteer.launch>>
+        try {
+          browser = await puppeteer.launch(env.BROWSER)
+        } catch (err) {
+          // Usually the account's concurrent-browser limit: ask to retry, don't 500.
+          console.error(
+            JSON.stringify({
+              level: 'error',
+              msg: 'pdf: browser launch',
+              ...errorForLog(err),
+            }),
+          )
+          return new Response('PDF temporarily unavailable', {
+            status: 503,
+            headers: { 'retry-after': '30', 'cache-control': 'no-store' },
+          })
+        }
         try {
           const page = await browser.newPage()
-          await page.setContent(html, { waitUntil: 'load' })
+          // The HTML carries customer-written text: no scripts, and no network
+          // at all (the logo is inlined as a data: URL).
+          await page.setJavaScriptEnabled(false)
+          await page.setRequestInterception(true)
+          page.on('request', (req) => {
+            if (req.isInterceptResolutionHandled()) return
+            if (req.url().startsWith('data:')) void req.continue()
+            else void req.abort()
+          })
+          await page.setContent(html, { waitUntil: 'load', timeout: 15_000 })
           const pdf = await page.pdf({
             format: 'letter',
             printBackground: true,
