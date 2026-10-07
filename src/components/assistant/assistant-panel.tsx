@@ -35,6 +35,7 @@ import {
 } from '@/components/ai-elements/prompt-input'
 import { Shimmer } from '@/components/ai-elements/shimmer'
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion'
+import { isPlanLimitError } from '@/components/billing/upgrade-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -88,13 +89,18 @@ export function AssistantPanel() {
   const toggleAssistant = useUiStore((s) => s.toggleAssistant)
   const [session, setSession] = useState<Session>(newSession)
 
-  // ⌘K / Ctrl+K toggles, Escape closes.
+  // ⌘K / Ctrl+K toggles, Escape closes. A dialog opened on top of the panel
+  // (the upgrade prompt) handles its own Escape first and marks it handled.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
         toggleAssistant()
-      } else if (e.key === 'Escape' && useUiStore.getState().assistantOpen) {
+      } else if (
+        e.key === 'Escape' &&
+        !e.defaultPrevented &&
+        useUiStore.getState().assistantOpen
+      ) {
         closeAssistant()
       }
     }
@@ -143,6 +149,7 @@ function ChatSession({
   const mode = useUiStore((s) => s.assistantMode)
   const closeAssistant = useUiStore((s) => s.closeAssistant)
   const setAssistantMode = useUiStore((s) => s.setAssistantMode)
+  const openUpgrade = useUiStore((s) => s.openUpgrade)
 
   const transport = useMemo(
     () =>
@@ -174,6 +181,14 @@ function ChatSession({
     },
     [sendMessage, clearError],
   )
+
+  // Out of free questions: offer Pro instead of an error line in the chat.
+  const planLimited = isPlanLimitError(error)
+  useEffect(() => {
+    if (!planLimited) return
+    clearError()
+    openUpgrade('ai')
+  }, [planLimited, clearError, openUpgrade])
 
   const busy = status === 'submitted' || status === 'streaming'
   const lastMessage = messages.at(-1)
@@ -315,7 +330,7 @@ function ChatSession({
                 {t.assistant.thinking}
               </Shimmer>
             )}
-            {error && (
+            {error && !planLimited && (
               <div
                 role="alert"
                 className="bg-destructive/10 text-destructive flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm"

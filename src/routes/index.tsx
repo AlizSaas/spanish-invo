@@ -2,6 +2,9 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, MessageCircle, ShieldCheck, Timer } from 'lucide-react'
 import { Logo } from '@/components/brand/logo'
 import { LanguageToggle } from '@/components/language-toggle'
+import { DemoVideo } from '@/components/marketing/demo-video'
+import { PricingSection } from '@/components/marketing/pricing-section'
+import { TradesMarquee } from '@/components/marketing/trades-marquee'
 import { SiteFooter } from '@/components/site-footer'
 import { Button } from '@/components/ui/button'
 import { checkSessionFn } from '@/data/session'
@@ -91,6 +94,8 @@ function Landing() {
           <PhoneMock />
         </section>
 
+        <DemoVideo />
+
         <section className="bg-card border-y">
           <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-14 md:grid-cols-3">
             {features.map((f) => (
@@ -106,6 +111,10 @@ function Landing() {
             ))}
           </div>
         </section>
+
+        <TradesMarquee />
+
+        <PricingSection signedIn={signedIn} />
       </main>
 
       <SiteFooter />
@@ -132,27 +141,29 @@ function PhoneMock() {
 
   return (
     <div className="relative mx-auto w-full max-w-sm">
-      <div className="from-primary/15 to-accent absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br blur-2xl" />
+      {/* The dark accent is an opaque green, so it would blur into a muddy blob. */}
+      <div className="from-primary/15 to-accent dark:to-primary/5 absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br blur-2xl" />
       <div className="bg-card rounded-[2rem] border p-3 shadow-xl">
         <div className="bg-muted/60 rounded-[1.5rem] p-4">
           <div className="mb-4 flex items-center gap-3">
             <div className="bg-primary/20 size-9 rounded-full" />
             <div>
-              <div className="h-3 w-28 rounded bg-black/15" />
-              <div className="mt-1.5 h-2 w-16 rounded bg-black/10" />
+              <div className="bg-foreground/15 h-3 w-28 rounded" />
+              <div className="bg-foreground/10 mt-1.5 h-2 w-16 rounded" />
             </div>
           </div>
-          <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#d9fdd3] p-3 text-sm text-[#111b21] shadow-sm">
+          {/* WhatsApp's own bubble colors, light and dark. */}
+          <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#d9fdd3] p-3 text-sm text-[#111b21] shadow-sm dark:bg-[#005c4b] dark:text-[#e9edef]">
             <p>{fillMockText(intro.trim(), sample)}</p>
-            <div className="mt-2 rounded-lg border border-black/10 bg-white/70 p-2">
+            <div className="mt-2 rounded-lg border border-black/10 bg-white/70 p-2 dark:border-white/10 dark:bg-black/20">
               <div className="text-primary text-xs font-semibold">
                 facturafacilapp.com/i/8k3…
               </div>
-              <div className="mt-1 h-2 w-3/4 rounded bg-black/10" />
-              <div className="mt-1 h-2 w-1/2 rounded bg-black/10" />
+              <div className="mt-1 h-2 w-3/4 rounded bg-black/10 dark:bg-white/15" />
+              <div className="mt-1 h-2 w-1/2 rounded bg-black/10 dark:bg-white/15" />
             </div>
             <p className="mt-2">{fillMockText(footer.trim(), sample)}</p>
-            <div className="mt-1 text-right text-[10px] text-black/50">
+            <div className="mt-1 text-right text-[10px] text-black/50 dark:text-white/60">
               10:42 ✓✓
             </div>
           </div>

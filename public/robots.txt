@@ -14,4 +14,21 @@ Disallow: /onboarding
 Disallow: /forgot-password
 Disallow: /reset-password
 
+# Messenger link previews. Meta's preview fetcher obeys robots.txt, so it may
+# read shared invoice links and business logos to draw the card in the chat.
+# Those pages still send noindex, so they don't show up in search.
+User-agent: facebookexternalhit
+User-agent: Facebot
+Allow: /i/
+Allow: /api/logo/
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /invoices
+Disallow: /estimates
+Disallow: /clients
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+
 Sitemap: https://facturafacilapp.com/sitemap.xml

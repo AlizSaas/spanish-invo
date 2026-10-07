@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import type { DocumentDetail } from '@/data/documents/documents'
 import type { DocumentType, Language } from '@/lib/constants'
 import type { DocumentInput } from '@/lib/validators/documents'
+import { isPlanLimitError } from '@/components/billing/upgrade-dialog'
 import { docPath } from '@/components/documents/doc-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -52,6 +53,7 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
   const queryClient = useQueryClient()
   const { settings } = useAppContext()
   const locale = useUiStore((s) => s.locale)
+  const openUpgrade = useUiStore((s) => s.openUpgrade)
 
   const draft = useInvoiceBuilder((s) => s.draft)
   const editingId = useInvoiceBuilder((s) => s.editingId)
@@ -149,7 +151,10 @@ export function DocumentBuilder({ type, initialClientId, editing }: Props) {
         href: docPath(doc.id, doc.type) + (share ? '?share=1' : ''),
       })
     },
-    onError: (err) => toast.error(errorMessage(t, err)),
+    onError: (err) =>
+      isPlanLimitError(err)
+        ? openUpgrade('documents')
+        : toast.error(errorMessage(t, err)),
   })
 
   const useDefaultInstructions = draft.paymentInstructionsOverride === ''

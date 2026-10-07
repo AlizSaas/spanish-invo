@@ -5,7 +5,8 @@
 export const es = {
   common: {
     appName: 'Factura Fácil',
-    tagline: 'Facturas profesionales por WhatsApp, sin complicaciones.',
+    tagline:
+      'Facturas profesionales por WhatsApp y Messenger, sin complicaciones.',
     save: 'Guardar',
     saving: 'Guardando…',
     cancel: 'Cancelar',
@@ -59,20 +60,57 @@ export const es = {
     account: 'Cuenta',
   },
   landing: {
-    heroTitle: 'Cobra más rápido. Factura por WhatsApp.',
+    heroTitle: 'Cobra más rápido. Factura por WhatsApp y Messenger.',
     heroBody:
-      'Crea facturas y presupuestos profesionales en español o inglés y envíalos directo al WhatsApp o SMS de tu cliente. Sin tarjetas, sin comisiones: te pagan por Zelle, Cash App, efectivo o cheque y tú marcas la factura como pagada.',
+      'Crea facturas y presupuestos profesionales en español o inglés y envíalos directo al WhatsApp o Messenger de tu cliente. Sin tarjetas, sin comisiones: te pagan por Zelle, Cash App, efectivo o cheque y tú marcas la factura como pagada.',
     ctaPrimary: 'Empezar gratis',
     ctaSecondary: 'Ya tengo cuenta',
     feature1Title: 'Listo en 2 minutos',
     feature1Body: 'Pon el nombre de tu negocio y cómo te pagan. Eso es todo.',
-    feature2Title: 'Envía por WhatsApp o SMS',
+    feature2Title: 'Envía por WhatsApp o Messenger',
     feature2Body:
       'Tu cliente abre un enlace limpio con la factura y puede bajar el PDF.',
     feature3Title: 'Tú controlas el cobro',
     feature3Body:
       'Sin procesadores de pago. Marcas cada factura como pagada cuando te llega el dinero.',
     forWho: 'Hecho para jardineros, limpieza, mecánicos, construcción y más.',
+    demoTitle: 'Mira cómo funciona',
+    demoSubtitle:
+      'De cero a una factura en el WhatsApp de tu cliente, en menos de lo que dura un café.',
+    demoCta: 'Mira el demo de 2 minutos',
+    demoSoon: 'Video próximamente (agrega el ID de YouTube en demo-video.tsx)',
+    tradesTitle: 'Hecho para tu oficio',
+    tradesSubtitle: 'Así lo usa cada negocio, del primer trabajo al pago.',
+    trades: [
+      {
+        trade: 'Jardinería',
+        body: 'Termina el corte, manda la factura por WhatsApp desde la camioneta y sigue con el siguiente jardín.',
+      },
+      {
+        trade: 'Limpieza',
+        body: 'Cobra cada casa por separado y marca la factura pagada cuando llega el Zelle.',
+      },
+      {
+        trade: 'Mecánicos',
+        body: 'Detalla piezas y mano de obra para que el cliente vea exactamente qué paga.',
+      },
+      {
+        trade: 'Construcción',
+        body: 'Manda el presupuesto primero y conviértelo en factura con un toque cuando lo aprueben.',
+      },
+      {
+        trade: 'Pintores',
+        body: 'Tu logo y tus datos en cada factura: se ve profesional sin pagar un diseñador.',
+      },
+      {
+        trade: 'Mantenimiento',
+        body: 'Factura en español o en inglés según el cliente, desde la misma cuenta.',
+      },
+      {
+        trade: 'Mudanzas',
+        body: 'Te pagan por Zelle, Cash App o en efectivo y tú marcas cada pago sin comisiones.',
+      },
+    ],
   },
   auth: {
     login: {
@@ -184,7 +222,8 @@ export const es = {
     searchPlaceholder: 'Buscar por nombre, teléfono o empresa',
     name: 'Nombre',
     phone: 'Teléfono (WhatsApp)',
-    phoneHelp: 'Con código de país, ej. +1 502 555 0100',
+    phoneHelp:
+      'Elige el país del número. Con el código de país correcto, WhatsApp encuentra a tu cliente.',
     email: 'Correo electrónico',
     company: 'Empresa',
     address: 'Dirección',
@@ -193,7 +232,8 @@ export const es = {
     preferredLanguageHelp:
       'Las facturas para este cliente se crearán en este idioma.',
     contactRequired: 'Agrega un teléfono o un correo',
-    invalidPhone: 'Número inválido. Usa formato +1 502 555 0100',
+    invalidPhone:
+      'Ese número no es válido para el país elegido. Revisa el país y los dígitos.',
     archived: 'Archivado',
     archive: 'Archivar',
     unarchive: 'Restaurar',
@@ -212,6 +252,13 @@ export const es = {
     whatsapp: 'Abrir WhatsApp',
     call: 'Llamar',
   },
+  phone: {
+    country: 'País del número',
+    chooseCountry: 'País',
+    frequent: 'Más usados',
+    allCountries: 'Todos los países',
+    needCountry: 'Elige el país del número para agregar su código (+1, +52…).',
+  },
   docs: {
     invoices: 'Facturas',
     estimates: 'Presupuestos',
@@ -226,7 +273,7 @@ export const es = {
     editEstimate: 'Editar presupuesto',
     emptyInvoicesTitle: 'Aún no tienes facturas',
     emptyInvoicesBody:
-      'Crea tu primera factura y mándala por WhatsApp en un minuto.',
+      'Crea tu primera factura y mándala por WhatsApp o Messenger en un minuto.',
     emptyEstimatesTitle: 'Aún no tienes presupuestos',
     emptyEstimatesBody:
       'Un presupuesto es una cotización. Cuando el cliente acepte, lo conviertes en factura.',
@@ -335,6 +382,7 @@ export const es = {
         created: 'Creado',
         updated: 'Editado',
         sent_whatsapp: 'Compartido por WhatsApp',
+        sent_messenger: 'Compartido por Messenger',
         sent_sms: 'Enviado por SMS',
         link_copied: 'Enlace copiado',
         viewed: 'El cliente lo abrió',
@@ -349,10 +397,19 @@ export const es = {
       subtitle: 'Elige cómo mandárselo a tu cliente.',
       whatsapp: 'Enviar por WhatsApp',
       whatsappHelp: 'Abre WhatsApp con el mensaje y el enlace ya escritos.',
+      messenger: 'Enviar por Messenger',
+      messengerHelp: 'Elige Messenger y luego a tu cliente.',
+      messengerHelpDesktop: 'Copia el mensaje y abre Messenger para pegarlo.',
+      messengerCopied:
+        'Mensaje copiado. Pégalo en el chat de tu cliente en Messenger.',
+      openMessenger: 'Abrir Messenger',
       sms: 'Enviar por SMS',
       smsHelp: 'Para clientes sin WhatsApp. Se envía desde nuestro número.',
       smsSent: 'SMS enviado',
       messageLanguage: 'Idioma del mensaje',
+      smsComingSoon: 'Próximamente',
+      smsComingSoonHelp:
+        'Estamos activando el envío por SMS. Mientras tanto usa WhatsApp, Messenger o copia el enlace.',
       smsTooLong:
         'El SMS es demasiado largo (máximo 480 caracteres). Acórtalo o envíalo por WhatsApp.',
       smsDailyLimit:
@@ -360,7 +417,7 @@ export const es = {
       copyLink: 'Copiar enlace',
       linkCopied: 'Enlace copiado',
       noPhone:
-        'Este cliente no tiene teléfono. Agrégalo para compartir por WhatsApp o SMS.',
+        'Este cliente no tiene teléfono. Agrégalo para compartir por WhatsApp, o envíalo por Messenger.',
       addPhone: 'Agregar teléfono',
       preview: 'Mensaje',
       editMessage: 'Puedes editar el mensaje antes de enviarlo.',
@@ -475,6 +532,75 @@ export const es = {
     poweredBy: 'Hecho con',
     notFound: 'Esta factura no existe o el enlace expiró.',
     contact: 'Contacto',
+    /** Link-preview card in WhatsApp/Messenger. {business} {number} {total} {due} get replaced. */
+    ogInvoiceTitle: 'Factura {number} de {business}',
+    ogEstimateTitle: 'Presupuesto {number} de {business}',
+    ogInvoiceDescription:
+      'Total {total} · Vence el {due}. Ábrela para ver el detalle y descargar el PDF.',
+    ogEstimateDescription:
+      'Total {total} · Válido hasta el {due}. Ábrelo para ver el detalle y descargar el PDF.',
+  },
+  billing: {
+    title: 'Tu plan',
+    free: 'Gratis',
+    pro: 'Pro',
+    /** {date} placeholders are filled with a formatted date. */
+    trialing: 'Prueba gratis hasta el {date}',
+    renews: 'Se renueva el {date}',
+    cancelsOn: 'Termina el {date}. Puedes reactivarlo cuando quieras.',
+    pastDue: 'Hay un pago pendiente. Actualiza tu tarjeta para no perder Pro.',
+    usage:
+      'Este mes: {invoices} de {limit} facturas · {estimates} de {limit} presupuestos',
+    unlimited: 'Facturas y presupuestos ilimitados',
+    upgrade: 'Mejorar a Pro',
+    manage: 'Administrar suscripción',
+    monthly: 'Mensual',
+    yearly: 'Anual',
+    perMonth: '/mes',
+    perYear: '/año',
+    trialNote: '14 días gratis. Cancela cuando quieras.',
+    limitReached:
+      'Llegaste al límite del plan Gratis (3 facturas y 3 presupuestos al mes). Mejora a Pro para seguir.',
+    limitTitle: 'Llegaste al límite del plan Gratis',
+    documentsLimitBody:
+      'El plan Gratis incluye 3 facturas y 3 presupuestos al mes. Con Pro son ilimitados, igual que el asistente IA.',
+    aiLimitBody:
+      'El plan Gratis incluye 10 preguntas al asistente IA al mes. Con Pro son ilimitadas, igual que tus facturas y presupuestos.',
+    billedMonthly: 'Se cobra cada mes',
+    billedYearly: 'Se cobra una vez al año · ahorras 17 %',
+    chooseMonthly: 'Elegir mensual',
+    chooseYearly: 'Elegir anual',
+    notNow: 'Ahora no',
+    upgraded: '¡Bienvenido a Pro! Ya no tienes límites.',
+    processing: 'Confirmando tu pago con Stripe… unos segundos.',
+    notConfigured: 'Los pagos todavía no están activados.',
+  },
+  pricing: {
+    title: 'Precios simples',
+    subtitle: 'Empieza gratis. Mejora cuando tu negocio lo pida.',
+    freeName: 'Gratis',
+    freeFeatures: [
+      '3 facturas y 3 presupuestos al mes',
+      'Envío por WhatsApp, Messenger, enlace y PDF',
+      'Asistente IA: 10 preguntas al mes',
+    ],
+    proName: 'Pro',
+    proFeatures: [
+      'Facturas y presupuestos ilimitados',
+      'Sin la marca "Hecho con Factura Fácil"',
+      'Asistente IA ilimitado',
+      'Soporte prioritario por WhatsApp',
+    ],
+    monthly: 'Mensual',
+    yearly: 'Anual',
+    perMonth: '/mes',
+    perYear: '/año',
+    yearlyNote: 'Ahorra 17 % · sale a $16.58 al mes',
+    popular: 'Más popular',
+    ctaFree: 'Empezar gratis',
+    ctaPro: 'Probar Pro 14 días gratis',
+    ctaSignedIn: 'Ver mi plan',
+    taxNote: 'Precios en USD, más impuestos donde aplique.',
   },
   legal: {
     privacy: 'Política de privacidad',
@@ -486,7 +612,7 @@ export const es = {
     agree: 'Al crear tu cuenta aceptas los {terms} y la {privacy}.',
   },
   message: {
-    /** WhatsApp/SMS body. {business} {number} {total} {link} {due} get replaced. */
+    /** WhatsApp/Messenger/SMS body. {business} {number} {total} {link} {due} get replaced. */
     invoice:
       'Hola, le comparto la factura {number} de {business} por {total}. Puede verla y descargar el PDF aquí: {link}\nVence el {due}. ¡Gracias!',
     estimate:

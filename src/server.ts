@@ -3,8 +3,10 @@ import { and, eq, inArray, lt, sql } from 'drizzle-orm'
 import { createDb } from './db'
 import { invoices } from './db/schema'
 import { createAuth } from './lib/auth'
-import { passwordResetEmail, sendEmail } from './lib/email'
+import { sendEmail } from './lib/email'
+import { passwordResetEmail } from './lib/email-templates'
 import { runWithRequestContext } from './lib/request-context'
+import { sendProThankYouEmail } from './services/billing-emails'
 import { WORKER_PREFIX, worker } from './worker'
 import type { RequestContext } from './lib/request-context'
 
@@ -21,8 +23,21 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
     db,
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
-    sendResetPassword: async ({ email, name, url }) => {
-      const mail = passwordResetEmail({ appName: env.APP_NAME, name, url })
+    stripe: {
+      secretKey: env.STRIPE_SECRET_KEY,
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      proMonthlyPriceId: env.STRIPE_PRICE_PRO_MONTHLY,
+      proYearlyPriceId: env.STRIPE_PRICE_PRO_YEARLY,
+      // Typed as the literal from wrangler.jsonc; compare as a plain string.
+      automaticTax: (env.STRIPE_AUTOMATIC_TAX as string) === 'true',
+    },
+    sendResetPassword: async ({ email, name, url, language }) => {
+      const mail = passwordResetEmail({
+        appName: env.APP_NAME,
+        name,
+        url,
+        language,
+      })
       await sendEmail(env, { to: email, ...mail })
     },
     onUserCreated: (u) => {
@@ -31,7 +46,12 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
       ctx.waitUntil(
         env.WELCOME_EMAIL_WORKFLOW.create({
           id: `welcome-${u.id}`,
-          params: { userId: u.id, email: u.email, name: u.name },
+          params: {
+            userId: u.id,
+            email: u.email,
+            name: u.name,
+            language: u.language,
+          },
         }).catch((err: unknown) => {
           console.error(
             JSON.stringify({
@@ -41,6 +61,22 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
             }),
           )
         }),
+      )
+    },
+    onSubscriptionComplete: ({ userId, stripeSubscription }) => {
+      // After the webhook responds: Stripe only waits a few seconds for a 200.
+      ctx.waitUntil(
+        sendProThankYouEmail(db, env, userId, stripeSubscription).catch(
+          (err: unknown) => {
+            console.error(
+              JSON.stringify({
+                level: 'error',
+                msg: 'pro thank-you email',
+                error: err instanceof Error ? err.message : String(err),
+              }),
+            )
+          },
+        ),
       )
     },
   })

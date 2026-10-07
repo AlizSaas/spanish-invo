@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { authErrorMessage } from './auth-errors'
 import { LegalAgreement } from '@/components/legal/legal-links'
@@ -16,7 +17,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { signUp } from '@/lib/auth-client'
+import { LOCALE_HEADER } from '@/lib/constants'
 import { useT } from '@/lib/i18n'
+import { useUiStore } from '@/stores/ui-store'
 
 const schema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -27,7 +30,9 @@ type Values = z.infer<typeof schema>
 
 export function SignupForm() {
   const t = useT()
+  const locale = useUiStore((s) => s.locale)
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [serverError, setServerError] = useState<string | null>(null)
   const {
     register,
@@ -44,11 +49,15 @@ export function SignupForm() {
       name: values.name,
       email: values.email,
       password: values.password,
+      // So the welcome emails come in the language they signed up in.
+      fetchOptions: { headers: { [LOCALE_HEADER]: locale } },
     })
     if (error) {
       setServerError(authErrorMessage(t, error.code))
       return
     }
+    // Drop anything cached for a previous account in this tab (see login-form).
+    queryClient.clear()
     await router.invalidate()
     await router.navigate({ to: '/onboarding' })
   })

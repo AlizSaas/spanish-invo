@@ -1,8 +1,12 @@
-// Transactional email via the Cloudflare Email binding (env.SEND_EMAIL).
-// In v1 this is ONLY used for Better Auth password resets. Invoices go out via WhatsApp/SMS.
+// Transactional email via the Cloudflare Email binding (env.SEND_EMAIL): password
+// resets, the welcome sequence and the Pro thank-you. Copy lives in
+// email-templates.ts. Invoices go out via WhatsApp/SMS, not email.
 //
 // Setup: the sending domain of EMAIL_FROM must be verified for Email Sending in the
 // Cloudflare dashboard, and wrangler.jsonc declares `send_email: [{ name: "SEND_EMAIL" }]`.
+
+import type { Language } from '@/lib/constants'
+import { DEFAULT_LANGUAGE, LANGUAGES, LOCALE_HEADER } from '@/lib/constants'
 
 interface SendEmailInput {
   to: string
@@ -24,25 +28,8 @@ export async function sendEmail(
   })
 }
 
-export function passwordResetEmail(opts: {
-  appName: string
-  name: string
-  url: string
-}) {
-  const firstName = opts.name.split(' ')[0] || ''
-  return {
-    subject: `Restablece tu contraseña de ${opts.appName}`,
-    text: [
-      `Hola ${firstName},`,
-      '',
-      `Recibimos una solicitud para restablecer la contraseña de tu cuenta en ${opts.appName}.`,
-      'Abre este enlace para crear una nueva contraseña (válido por 1 hora):',
-      opts.url,
-      '',
-      'Si no fuiste tú, puedes ignorar este mensaje.',
-      '',
-      '—',
-      `If you didn't request this, you can ignore this email. Reset link: ${opts.url}`,
-    ].join('\n'),
-  }
+/** UI language of the request that triggered an email; Spanish when unknown. */
+export function languageFromHeaders(headers: Headers | undefined): Language {
+  const value = headers?.get(LOCALE_HEADER)
+  return LANGUAGES.find((l) => l === value) ?? DEFAULT_LANGUAGE
 }

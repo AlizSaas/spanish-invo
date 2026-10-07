@@ -1,10 +1,6 @@
 import { z } from 'zod'
 import { CURRENCIES, LANGUAGES, TIMEZONES } from '@/lib/constants'
-
-export const e164PhoneSchema = z
-  .string()
-  .trim()
-  .regex(/^\+[1-9]\d{6,14}$/, 'Número inválido. Usa formato +1 502 555 0100')
+import { phoneSchema } from '@/lib/validators/phone'
 
 /**
  * Logo URLs are issued by /api/settings/logo as app-relative paths
@@ -46,7 +42,7 @@ export const onboardingSchema = z.object({
     .trim()
     .min(2, 'Escribe el nombre de tu negocio')
     .max(120),
-  businessPhone: e164PhoneSchema.nullable().optional(),
+  businessPhone: phoneSchema.nullable().optional(),
   logoUrl: logoUrlSchema.nullable().optional(),
   defaultCurrency: z.enum(CURRENCIES),
   timezone: z.enum(TIMEZONES),
@@ -63,7 +59,7 @@ export type OnboardingInput = z.output<typeof onboardingSchema>
 /** Everything editable later from the Settings page. All optional (PATCH semantics). */
 export const updateSettingsSchema = z.object({
   businessName: z.string().trim().min(2).max(120).optional(),
-  businessPhone: e164PhoneSchema.nullable().optional(),
+  businessPhone: phoneSchema.nullable().optional(),
   businessEmail: z
     .string()
     .trim()

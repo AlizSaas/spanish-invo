@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react'
 import { AppSidebar } from '@/components/app-sidebar'
 import { AssistantButton } from '@/components/assistant/assistant-button'
 import { AssistantPanel } from '@/components/assistant/assistant-panel'
+import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -69,7 +70,7 @@ function AppLayout() {
             orientation="vertical"
             className="mr-1 data-[orientation=vertical]:h-4 md:hidden"
           />
-          <Link to="/dashboard" className="md:hidden">
+          <Link to="/" className="md:hidden">
             <Logo compact />
           </Link>
           <div className="flex-1" />
@@ -89,6 +90,7 @@ function AppLayout() {
         </div>
       </SidebarInset>
       <AssistantPanel />
+      <UpgradeDialog />
     </SidebarProvider>
   )
 }

@@ -51,10 +51,11 @@ export function errorMessage(dict: Dictionary, err: unknown): string {
     NOT_FOUND: dict.common.notFoundBody,
     CLIENT_HAS_DOCUMENTS: dict.clients.hasInvoices,
     CLIENT_NO_PHONE: dict.docs.share.noPhone,
-    SMS_NOT_CONFIGURED: 'SMS no configurado / SMS not configured (Twilio)',
+    SMS_NOT_CONFIGURED: dict.docs.share.smsComingSoonHelp,
     SMS_FAILED: dict.auth.errors.generic,
     SMS_TOO_LONG: dict.docs.share.smsTooLong,
     SMS_DAILY_LIMIT: dict.docs.share.smsDailyLimit,
+    PLAN_LIMIT: dict.billing.limitReached,
     LOCKED: dict.docs.detail.voidBody,
   }
   return map[code] ?? resolveMessage(dict, code) ?? dict.auth.errors.generic

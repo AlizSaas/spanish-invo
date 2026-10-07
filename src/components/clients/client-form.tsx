@@ -2,6 +2,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Client } from '@/db/schema'
 import type { ClientFormInput } from '@/lib/validators/clients'
+import { PhoneInput } from '@/components/phone-input'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -77,13 +78,20 @@ export function ClientForm({
         <div className="grid gap-6 sm:grid-cols-2">
           <Field data-invalid={!!errors.phone}>
             <FieldLabel htmlFor="phone">{t.clients.phone}</FieldLabel>
-            <Input
-              id="phone"
-              type="tel"
-              inputMode="tel"
-              placeholder="+1 502 555 0100"
-              aria-invalid={!!errors.phone}
-              {...register('phone')}
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field }) => (
+                <PhoneInput
+                  id="phone"
+                  ref={field.ref}
+                  autoComplete="off"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  invalid={!!errors.phone}
+                />
+              )}
             />
             <FieldDescription>{t.clients.phoneHelp}</FieldDescription>
             <FieldError errors={[err(errors.phone?.message)]} />

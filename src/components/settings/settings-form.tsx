@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 import type { Settings } from '@/db/schema'
+import { PhoneInput } from '@/components/phone-input'
 import { LogoUploader } from '@/components/settings/logo-uploader'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,8 +34,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { SETTINGS_QUERY_KEY } from '@/data/settings/queries'
 import { updateSettingsFn } from '@/data/settings/settings'
 import { CURRENCIES, TIMEZONES } from '@/lib/constants'
-import { errorMessage, useT } from '@/lib/i18n'
-import { normalizePhone } from '@/lib/utils'
+import { errorMessage, resolveMessage, useT } from '@/lib/i18n'
 import { updateSettingsSchema } from '@/lib/validators/settings'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -124,26 +124,21 @@ export function SettingsForm({ settings }: { settings: Settings }) {
                   control={control}
                   name="businessPhone"
                   render={({ field }) => (
-                    <Input
+                    <PhoneInput
                       id="businessPhone"
-                      type="tel"
-                      inputMode="tel"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      onBlur={() => {
-                        if (field.value)
-                          field.onChange(
-                            normalizePhone(field.value) ?? field.value,
-                          )
-                        field.onBlur()
-                      }}
-                      aria-invalid={!!errors.businessPhone}
+                      ref={field.ref}
+                      value={field.value}
+                      onChange={(v) => field.onChange(v || null)}
+                      onBlur={field.onBlur}
+                      invalid={!!errors.businessPhone}
                     />
                   )}
                 />
                 <FieldError
                   errors={[
-                    errors.businessPhone && { message: t.clients.invalidPhone },
+                    errors.businessPhone && {
+                      message: resolveMessage(t, errors.businessPhone.message),
+                    },
                   ]}
                 />
               </Field>

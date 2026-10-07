@@ -10,6 +10,8 @@ import type {
 export interface PublicDocument {
   id: string
   ownerId: string
+  /** True for free-plan owners: the public page shows the "Made with" badge. */
+  showBranding: boolean
   updatedAt: string // ISO, used as a PDF cache key
   type: DocumentType
   number: string

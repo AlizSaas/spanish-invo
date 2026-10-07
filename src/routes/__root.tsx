@@ -24,11 +24,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
-      { title: 'Factura Fácil — Facturas por WhatsApp' },
+      { title: 'Factura Fácil — Facturas por WhatsApp y Messenger' },
       {
         name: 'description',
         content:
-          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o SMS.',
+          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o Messenger.',
       },
       { name: 'theme-color', content: '#2f7a4f' },
       // Link previews (WhatsApp, iMessage, social) when the site URL is shared.
@@ -36,12 +36,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: 'og:type', content: 'website' },
       {
         property: 'og:title',
-        content: 'Factura Fácil — Facturas por WhatsApp',
+        content: 'Factura Fácil — Facturas por WhatsApp y Messenger',
       },
       {
         property: 'og:description',
         content:
-          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o SMS.',
+          'Crea facturas y presupuestos profesionales en español o inglés y envíalos por WhatsApp o Messenger.',
       },
       { property: 'og:url', content: SITE_URL },
       { property: 'og:locale', content: 'es_US' },

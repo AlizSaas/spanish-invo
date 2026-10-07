@@ -600,13 +600,18 @@ export function createInvoiceTools(ctx: ToolContext) {
         .from(invoices)
         .where(issuedWhere)
 
+      // Repeating a bucket expression in GROUP BY gives it fresh bind
+      // parameters ($1 in SELECT, $10 in GROUP BY), so Postgres can't match
+      // the two and rejects the query, even with no rows. Group and sort by
+      // the first output column, which is the bucket.
+      const bucketColumn = sql`1`
       const paidBucket = sql<string>`to_char(timezone(${tz}, ${invoices.paidAt}), ${fmt})`
       const paidRows = await ctx.db
         .select({ bucket: paidBucket, total: sum(invoices.total), n: count() })
         .from(invoices)
         .where(paidWhere)
-        .groupBy(paidBucket)
-        .orderBy(paidBucket)
+        .groupBy(bucketColumn)
+        .orderBy(bucketColumn)
       const issuedBucket = sql<string>`to_char(${invoices.issueDate}, ${fmt})`
       const issuedRows = await ctx.db
         .select({
@@ -616,8 +621,8 @@ export function createInvoiceTools(ctx: ToolContext) {
         })
         .from(invoices)
         .where(issuedWhere)
-        .groupBy(issuedBucket)
-        .orderBy(issuedBucket)
+        .groupBy(bucketColumn)
+        .orderBy(bucketColumn)
 
       const buckets = new Map<
         string,
@@ -760,7 +765,7 @@ export function createInvoiceTools(ctx: ToolContext) {
 
   const getRecentActivity = tool({
     description:
-      'Timeline of what happened recently across all documents: created, edited, shared on WhatsApp, sent by SMS, link copied, opened by the customer, PDF downloaded, marked paid, voided, estimate converted. Use for "did anyone open my invoice", "who paid today", "what happened this week".',
+      'Timeline of what happened recently across all documents: created, edited, shared on WhatsApp, shared on Messenger, sent by SMS, link copied, opened by the customer, PDF downloaded, marked paid, voided, estimate converted. Use for "did anyone open my invoice", "who paid today", "what happened this week".',
     inputSchema: z.object({
       days: z.number().int().min(1).max(90).default(7),
       eventType: z.enum([...INVOICE_EVENT_TYPES, 'all']).default('all'),

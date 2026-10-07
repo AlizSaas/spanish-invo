@@ -18,6 +18,7 @@ import { getDb } from '@/db'
 import { aiConversations, aiMessages, settings } from '@/db/schema'
 import { refreshOverdue } from '@/data/documents/helpers'
 import { AI_MESSAGES_PER_HOUR } from '@/lib/constants'
+import { FREE_LIMITS, getActivePlan } from '@/lib/plan'
 import { reindexUserDocuments } from '@/services/vectors'
 
 const MAX_HISTORY = 30
@@ -129,6 +130,29 @@ chatRoute.post('/chat', async (c) => {
     .then((rows) => rows.reduce((n, r) => n + r.n, 0))
   if (usedThisHour >= AI_MESSAGES_PER_HOUR) {
     return c.json({ error: 'RATE_LIMITED' }, 429)
+  }
+
+  // Free plan: a small monthly allowance; Pro is unlimited (within the hourly cap).
+  const { plan } = await getActivePlan(db, user.id)
+  if (plan === 'free') {
+    const usedThisMonth = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(aiMessages)
+      .innerJoin(
+        aiConversations,
+        eq(aiMessages.conversationId, aiConversations.id),
+      )
+      .where(
+        and(
+          eq(aiConversations.userId, user.id),
+          eq(aiMessages.role, 'user'),
+          sql`${aiMessages.createdAt} >= date_trunc('month', now())`,
+        ),
+      )
+      .then((rows) => rows.reduce((n, r) => n + r.n, 0))
+    if (usedThisMonth >= FREE_LIMITS.aiQuestionsPerMonth) {
+      return c.json({ error: 'PLAN_LIMIT' }, 402)
+    }
   }
 
   if (!existing) {

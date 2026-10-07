@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { LANGUAGES } from '@/lib/constants'
-import { normalizePhone } from '@/lib/utils'
+import { phoneSchema } from '@/lib/validators/phone'
 
 const optionalText = (max: number) =>
   z
@@ -18,23 +18,7 @@ const optionalText = (max: number) =>
 export const clientInputSchema = z
   .object({
     name: z.string().trim().min(1, 'clients.name').max(120),
-    phone: z
-      .string()
-      .trim()
-      .max(30)
-      .optional()
-      .transform((v, ctx) => {
-        if (!v) return null
-        const normalized = normalizePhone(v)
-        if (!normalized) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'clients.invalidPhone',
-          })
-          return z.NEVER
-        }
-        return normalized
-      }),
+    phone: phoneSchema.default(''),
     email: z
       .string()
       .trim()

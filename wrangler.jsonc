@@ -73,6 +73,12 @@
     "DEFAULT_TIMEZONE": "America/Chicago",
     // AI assistant model (OpenAI). The key itself is the OPENAIAPIKEY secret.
     "OPENAI_MODEL": "gpt-5-mini",
+    // Stripe prices. Test-mode IDs until launch; swap for the live IDs together
+    // with the live STRIPE_SECRET_KEY. STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET are secrets.
+    "STRIPE_PRICE_PRO_MONTHLY": "price_1UNh97Ej24tRBXr0r31IOWO4",
+    "STRIPE_PRICE_PRO_YEARLY": "price_1UNhAGEj24tRBXr0gH8kx8tL",
+    // Turn on only after Stripe Tax is activated on the account; Checkout fails otherwise.
+    "STRIPE_AUTOMATIC_TAX": "false",
   },
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
 }

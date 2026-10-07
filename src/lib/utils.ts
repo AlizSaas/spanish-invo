@@ -41,26 +41,6 @@ export function formatDate(
   }).format(d)
 }
 
-/**
- * Normalize a user-typed phone number to E.164 so wa.me and Twilio accept it.
- * US-centric: a bare 10-digit number gets the default country code. Numbers
- * typed with "+" or with their own country code pass through as digits.
- * Returns null when it can't produce a plausible number.
- */
-export function normalizePhone(
-  input: string,
-  defaultCountryCode = '1',
-): string | null {
-  const trimmed = input.trim()
-  if (!trimmed) return null
-  const digits = trimmed.replace(/\D/g, '')
-  if (digits.length < 7 || digits.length > 15) return null
-  if (!trimmed.startsWith('+') && digits.length === 10) {
-    return `+${defaultCountryCode}${digits}`
-  }
-  return `+${digits}`
-}
-
 /** wa.me wants digits only, no "+" */
 export function toWhatsAppNumber(e164: string): string {
   return e164.replace(/\D/g, '')

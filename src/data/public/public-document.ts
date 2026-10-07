@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getRequestHeader } from '@tanstack/react-start/server'
 import { queryOptions } from '@tanstack/react-query'
 import { and, eq, gt, isNull, or } from 'drizzle-orm'
 import type { Database } from '@/db'
@@ -10,6 +11,7 @@ import {
   settings,
 } from '@/db/schema'
 import { publicMiddleware } from '@/middlewares/dependencies'
+import { getActivePlan } from '@/lib/plan'
 import { publicTokenSchema } from '@/lib/validators/documents'
 import { logEvent } from '@/data/documents/helpers'
 
@@ -41,6 +43,8 @@ export async function loadPublicDocument(
   const s = await db.query.settings.findFirst({
     where: eq(settings.userId, doc.userId),
   })
+  // Free-plan owners show the "Made with Factura Fácil" badge; Pro removes it.
+  const { plan } = await getActivePlan(db, doc.userId)
 
   if (opts.recordView) {
     // First open flips sent → viewed; every open leaves a trace for the owner.
@@ -65,6 +69,7 @@ export async function loadPublicDocument(
   return {
     id: doc.id,
     ownerId: doc.userId,
+    showBranding: plan === 'free',
     updatedAt: doc.updatedAt.toISOString(),
     type: doc.type,
     number: doc.invoiceNumber,
@@ -110,13 +115,27 @@ export async function loadPublicDocument(
   }
 }
 
+/**
+ * Link-preview fetchers and crawlers. Messenger, WhatsApp, iMessage, Slack…
+ * load the page to build the card in the chat, which must not count as the
+ * customer opening the invoice. Messenger's in-app browser (FBAN/FBAV/FB_IAB)
+ * is a real person and deliberately doesn't match.
+ */
+const PREVIEW_BOT =
+  /facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|slackbot|telegrambot|discordbot|linkedinbot|skypeuripreview|pinterestbot|redditbot|applebot|googlebot|bingbot|duckduckbot|yandexbot|baiduspider|embedly|iframely|vkshare|google-inspectiontool|gptbot|claudebot|perplexitybot|bytespider/i
+
 export const getPublicDocumentFn = createServerFn({ method: 'GET' })
   .middleware([publicMiddleware])
   .validator(publicTokenSchema)
   .handler(async ({ context, data }) => {
-    return loadPublicDocument(context.db, data.token, {
-      recordView: !data.preview,
+    const userAgent = getRequestHeader('user-agent') ?? ''
+    const doc = await loadPublicDocument(context.db, data.token, {
+      recordView: !data.preview && !PREVIEW_BOT.test(userAgent),
     })
+    // Absolute origin for the link-preview tags (og:url, og:image).
+    return (
+      doc && { ...doc, origin: context.env.BETTER_AUTH_URL.replace(/\/$/, '') }
+    )
   })
 
 export const publicDocumentQuery = (token: string, preview = false) =>

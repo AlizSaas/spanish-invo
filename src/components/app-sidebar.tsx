@@ -64,7 +64,7 @@ export function AppSidebar({ user, settings }: Props) {
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-14 justify-center px-3 md:h-16">
         <Link
-          to="/dashboard"
+          to="/"
           className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
         >
           <LogoMark className="size-7 shrink-0" />

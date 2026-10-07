@@ -17,6 +17,8 @@ export type DocumentType = (typeof DOCUMENT_TYPES)[number]
 export const LANGUAGES = ['es', 'en'] as const
 export type Language = (typeof LANGUAGES)[number]
 export const DEFAULT_LANGUAGE: Language = 'es'
+/** Sent by the signup and forgot-password forms so auth emails match the UI language. */
+export const LOCALE_HEADER = 'x-locale'
 
 export const DISCOUNT_TYPES = ['percentage', 'fixed'] as const
 export type DiscountType = (typeof DISCOUNT_TYPES)[number]
@@ -61,6 +63,7 @@ export const INVOICE_EVENT_TYPES = [
   'created',
   'updated',
   'sent_whatsapp',
+  'sent_messenger',
   'sent_sms',
   'link_copied',
   'viewed',
@@ -85,3 +88,15 @@ export const SUPPORT_EMAIL = 'support@facturafacilapp.com'
 export const SMS_MAX_CHARS = 480
 export const SMS_DAILY_LIMIT = 50
 export const AI_MESSAGES_PER_HOUR = 60
+
+/**
+ * Off until Twilio approves the toll-free / A2P 10DLC verification. Hides the
+ * SMS share button and makes the server refuse the channel even when the
+ * Twilio secrets are set. /sms-consent stays live: the review links to it.
+ * Typed as boolean so the gated code still type-checks and lints while off.
+ */
+export const SMS_ENABLED = false as boolean
+
+/** Display prices for the pricing page. Stripe (STRIPE_PRICE_* vars) is the source of truth for billing. */
+export const PRO_MONTHLY_PRICE = 19.99
+export const PRO_YEARLY_PRICE = 199

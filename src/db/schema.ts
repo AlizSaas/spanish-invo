@@ -68,6 +68,8 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  /** Set by the Better Auth Stripe plugin the first time the user checks out. */
+  stripeCustomerId: text('stripe_customer_id'),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 })
@@ -122,6 +124,34 @@ export const verification = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [index('idx_verification_identifier').on(t.identifier)],
+)
+
+/**
+ * Owned by the Better Auth Stripe plugin (model "subscription"): written from
+ * Stripe webhooks, read by lib/plan.ts. `referenceId` is the user id.
+ */
+export const subscription = pgTable(
+  'subscription',
+  {
+    id: text('id').primaryKey(),
+    plan: text('plan').notNull(),
+    referenceId: text('reference_id').notNull(),
+    stripeCustomerId: text('stripe_customer_id'),
+    stripeSubscriptionId: text('stripe_subscription_id'),
+    status: text('status').notNull().default('incomplete'),
+    periodStart: ts('period_start'),
+    periodEnd: ts('period_end'),
+    trialStart: ts('trial_start'),
+    trialEnd: ts('trial_end'),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+    cancelAt: ts('cancel_at'),
+    canceledAt: ts('canceled_at'),
+    endedAt: ts('ended_at'),
+    seats: integer('seats'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index('idx_subscription_reference_id').on(t.referenceId)],
 )
 
 // ---------------------------------------------------------------------------

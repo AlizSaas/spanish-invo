@@ -19,7 +19,13 @@ interface UiState {
   closeAssistant: () => void
   toggleAssistant: () => void
   setAssistantMode: (mode: 'panel' | 'full') => void
+  /** Free-plan limit hit: which upgrade dialog is open (not persisted) */
+  upgradeReason: UpgradeReason | null
+  openUpgrade: (reason: UpgradeReason) => void
+  closeUpgrade: () => void
 }
+
+export type UpgradeReason = 'documents' | 'ai'
 
 export const useUiStore = create<UiState>()(
   persist(
@@ -40,6 +46,9 @@ export const useUiStore = create<UiState>()(
       closeAssistant: () => set({ assistantOpen: false }),
       toggleAssistant: () => set((s) => ({ assistantOpen: !s.assistantOpen })),
       setAssistantMode: (assistantMode) => set({ assistantMode }),
+      upgradeReason: null,
+      openUpgrade: (upgradeReason) => set({ upgradeReason }),
+      closeUpgrade: () => set({ upgradeReason: null }),
     }),
     {
       name: 'spanish-invo:ui',

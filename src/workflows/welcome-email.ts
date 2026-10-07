@@ -1,8 +1,10 @@
 import { WorkflowEntrypoint } from 'cloudflare:workers'
 import { eq } from 'drizzle-orm'
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
+import type { Language } from '@/lib/constants'
 import { createDb } from '@/db'
 import { settings } from '@/db/schema'
+import { DEFAULT_LANGUAGE } from '@/lib/constants'
 import { sendEmail } from '@/lib/email'
 import { onboardingReminderEmail, welcomeEmail } from '@/lib/email-templates'
 
@@ -10,6 +12,8 @@ export interface WelcomeEmailParams {
   userId: string
   email: string
   name: string
+  /** UI language at signup. Optional: instances queued before it existed. */
+  language?: Language
 }
 
 /**
@@ -24,6 +28,7 @@ export class WelcomeEmailWorkflow extends WorkflowEntrypoint<
 > {
   async run(event: WorkflowEvent<WelcomeEmailParams>, step: WorkflowStep) {
     const { userId, email, name } = event.payload
+    const language = event.payload.language ?? DEFAULT_LANGUAGE
     const env = this.env
     const appUrl = env.BETTER_AUTH_URL.replace(/\/$/, '')
 
@@ -33,7 +38,7 @@ export class WelcomeEmailWorkflow extends WorkflowEntrypoint<
       async () => {
         await sendEmail(env, {
           to: email,
-          ...welcomeEmail({ appName: env.APP_NAME, name, appUrl }),
+          ...welcomeEmail({ appName: env.APP_NAME, name, appUrl, language }),
         })
       },
     )
@@ -56,7 +61,12 @@ export class WelcomeEmailWorkflow extends WorkflowEntrypoint<
         async () => {
           await sendEmail(env, {
             to: email,
-            ...onboardingReminderEmail({ appName: env.APP_NAME, name, appUrl }),
+            ...onboardingReminderEmail({
+              appName: env.APP_NAME,
+              name,
+              appUrl,
+              language,
+            }),
           })
         },
       )

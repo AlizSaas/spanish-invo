@@ -49,6 +49,9 @@
 }
 
 .dark {
+  /* Native controls (select menus, date pickers, scrollbars) follow the theme */
+  color-scheme: dark;
+
   --background: oklch(0.17 0.008 60);
   --foreground: oklch(0.96 0.005 90);
   --card: oklch(0.21 0.008 60);
@@ -130,6 +133,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Content is rendered twice; sliding one copy's width loops seamlessly. */
+  --animate-marquee: marquee 50s linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
 }
 
 @layer base {

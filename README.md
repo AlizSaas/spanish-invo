@@ -1,8 +1,9 @@
 # spanish-invo
 
 Spanish-first invoicing for small Hispanic-owned service businesses. Owners build invoices
-and estimates, then share them over WhatsApp or SMS. No card processing in v1: the invoice
-shows how to pay (Zelle, Cash App, cash, Venmo, check) and the owner marks it paid.
+and estimates, then share them over WhatsApp or Messenger (SMS once Twilio approves the
+number). No card processing in v1: the invoice shows how to pay (Zelle, Cash App, cash,
+Venmo, check) and the owner marks it paid.
 
 ## Stack
 

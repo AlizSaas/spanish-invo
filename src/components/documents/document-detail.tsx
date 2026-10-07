@@ -19,6 +19,7 @@ import {
   Undo2,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { isPlanLimitError } from '@/components/billing/upgrade-dialog'
 import { DocLink, docPath } from '@/components/documents/doc-link'
 import { MarkPaidDialog } from '@/components/documents/mark-paid-dialog'
 import { ShareDialog } from '@/components/documents/share-dialog'
@@ -94,7 +95,11 @@ export function DocumentDetail({
       queryClient.invalidateQueries({ queryKey: clientKeys.all }),
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     ])
-  const onError = (err: unknown) => toast.error(errorMessage(t, err))
+  const openUpgrade = useUiStore((s) => s.openUpgrade)
+  const onError = (err: unknown) =>
+    isPlanLimitError(err)
+      ? openUpgrade('documents')
+      : toast.error(errorMessage(t, err))
 
   const voidDoc = useMutation({
     mutationFn: () => voidDocumentFn({ data: { id } }),

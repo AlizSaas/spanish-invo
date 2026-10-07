@@ -8,9 +8,9 @@ import type { LegalContent } from './types'
 export const legalEs: LegalContent = {
   privacy: {
     title: 'Política de privacidad',
-    updated: '5 de octubre de 2026',
+    updated: '6 de octubre de 2026',
     intro:
-      'Factura Fácil (facturafacilapp.com) es una herramienta para crear facturas y presupuestos y compartirlos por WhatsApp o SMS. Esta política explica qué datos recopilamos, para qué los usamos y qué derechos tienes. Si tienes dudas, escríbenos a {email}.',
+      'Factura Fácil (facturafacilapp.com) es una herramienta para crear facturas y presupuestos y compartirlos por WhatsApp, Messenger o SMS. Esta política explica qué datos recopilamos, para qué los usamos y qué derechos tienes. Si tienes dudas, escríbenos a {email}.',
     sections: [
       {
         heading: 'Qué datos recopilamos',
@@ -34,6 +34,7 @@ export const legalEs: LegalContent = {
         heading: 'Enlaces públicos de facturas',
         body: [
           'Cuando compartes una factura o presupuesto generamos un enlace único y difícil de adivinar. Cualquier persona que tenga ese enlace puede ver el documento y descargar el PDF. Pedimos a los buscadores que no indexen esas páginas. Comparte el enlace solo con tu cliente.',
+          'Si compartes el enlace por Messenger, Meta abre la página para mostrar una vista previa en el chat con el nombre de tu negocio, el número del documento, el total y la fecha de vencimiento.',
         ],
       },
       {
@@ -100,7 +101,7 @@ export const legalEs: LegalContent = {
   },
   terms: {
     title: 'Términos de servicio',
-    updated: '5 de octubre de 2026',
+    updated: '6 de octubre de 2026',
     intro:
       'Estos términos regulan el uso de Factura Fácil (facturafacilapp.com). Al crear una cuenta aceptas estos términos y nuestra Política de privacidad. Si no estás de acuerdo, no uses el servicio.',
     sections: [
@@ -113,7 +114,7 @@ export const legalEs: LegalContent = {
       {
         heading: 'Qué es Factura Fácil',
         body: [
-          'Factura Fácil te permite crear facturas y presupuestos, compartirlos por WhatsApp, SMS o enlace, y llevar el control de lo cobrado.',
+          'Factura Fácil te permite crear facturas y presupuestos, compartirlos por WhatsApp, Messenger, SMS o enlace, y llevar el control de lo cobrado.',
           'No procesamos pagos ni movemos dinero. Las instrucciones de pago (Zelle, Cash App, efectivo, cheque u otras) son tuyas y el pago ocurre fuera de la plataforma, directamente entre tú y tu cliente.',
         ],
       },
@@ -126,8 +127,8 @@ export const legalEs: LegalContent = {
       {
         heading: 'Mensajes a tus clientes',
         body: [
-          'Al compartir por WhatsApp, el mensaje sale desde tu propio WhatsApp. Al elegir SMS, el mensaje se envía a través de nuestro proveedor en tu nombre.',
-          'Envía mensajes solo a clientes que esperan recibirlos y que te dieron su número para ese fin. Está prohibido usar el servicio para enviar spam o mensajes no solicitados. Debes cumplir las normas de WhatsApp y las leyes sobre mensajería, como la TCPA en Estados Unidos.',
+          'Al compartir por WhatsApp o Messenger, el mensaje sale desde tu propia cuenta. Al elegir SMS, el mensaje se envía a través de nuestro proveedor en tu nombre.',
+          'Envía mensajes solo a clientes que esperan recibirlos y que te dieron su número para ese fin. Está prohibido usar el servicio para enviar spam o mensajes no solicitados. Debes cumplir las normas de WhatsApp y Messenger y las leyes sobre mensajería, como la TCPA en Estados Unidos.',
         ],
       },
       {

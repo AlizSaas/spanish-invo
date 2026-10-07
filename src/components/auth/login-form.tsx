@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { authErrorMessage } from './auth-errors'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ type Values = z.infer<typeof schema>
 export function LoginForm() {
   const t = useT()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [serverError, setServerError] = useState<string | null>(null)
   const {
     register,
@@ -45,6 +47,9 @@ export function LoginForm() {
       setServerError(authErrorMessage(t, error.code))
       return
     }
+    // A tab bounced here after its session ended still caches the previous
+    // account's settings and documents; never show them to the new one.
+    queryClient.clear()
     await router.invalidate()
     await router.navigate({ to: '/dashboard' })
   })

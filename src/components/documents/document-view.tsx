@@ -250,10 +250,12 @@ export function DocumentView({
           </footer>
         </article>
 
-        <div className="no-print text-muted-foreground mt-6 flex items-center justify-center gap-1.5 text-xs">
-          {t.poweredBy} <Logo compact className="[&_svg]:size-4" /> Factura
-          Fácil
-        </div>
+        {doc.showBranding && (
+          <div className="no-print text-muted-foreground mt-6 flex items-center justify-center gap-1.5 text-xs">
+            {t.poweredBy} <Logo compact className="[&_svg]:size-4" /> Factura
+            Fácil
+          </div>
+        )}
       </div>
     </div>
   )

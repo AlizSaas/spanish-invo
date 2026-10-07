@@ -4,9 +4,9 @@ import type { LegalContent } from './types'
 export const legalEn: LegalContent = {
   privacy: {
     title: 'Privacy Policy',
-    updated: 'October 5, 2026',
+    updated: 'October 6, 2026',
     intro:
-      'Factura Fácil (facturafacilapp.com) is a tool for creating invoices and estimates and sharing them over WhatsApp or SMS. This policy explains what data we collect, what we use it for and what rights you have. Questions? Write to {email}.',
+      'Factura Fácil (facturafacilapp.com) is a tool for creating invoices and estimates and sharing them over WhatsApp, Messenger or SMS. This policy explains what data we collect, what we use it for and what rights you have. Questions? Write to {email}.',
     sections: [
       {
         heading: 'What we collect',
@@ -30,6 +30,7 @@ export const legalEn: LegalContent = {
         heading: 'Public invoice links',
         body: [
           'When you share an invoice or estimate we generate a unique, hard-to-guess link. Anyone who has that link can view the document and download the PDF. We ask search engines not to index those pages. Share the link only with your customer.',
+          'If you share the link over Messenger, Meta loads the page to show a preview in the chat with your business name, the document number, the total and the due date.',
         ],
       },
       {
@@ -96,7 +97,7 @@ export const legalEn: LegalContent = {
   },
   terms: {
     title: 'Terms of Service',
-    updated: 'October 5, 2026',
+    updated: 'October 6, 2026',
     intro:
       'These terms govern your use of Factura Fácil (facturafacilapp.com). By creating an account you agree to these terms and to our Privacy Policy. If you do not agree, do not use the service.',
     sections: [
@@ -109,7 +110,7 @@ export const legalEn: LegalContent = {
       {
         heading: 'What Factura Fácil is',
         body: [
-          'Factura Fácil lets you create invoices and estimates, share them over WhatsApp, SMS or a link, and keep track of what has been paid.',
+          'Factura Fácil lets you create invoices and estimates, share them over WhatsApp, Messenger, SMS or a link, and keep track of what has been paid.',
           'We do not process payments or move money. Payment instructions (Zelle, Cash App, cash, check or others) are yours, and payment happens outside the platform, directly between you and your customer.',
         ],
       },
@@ -122,8 +123,8 @@ export const legalEn: LegalContent = {
       {
         heading: 'Messaging your customers',
         body: [
-          'When you share over WhatsApp, the message is sent from your own WhatsApp. When you choose SMS, the message is sent through our provider on your behalf.',
-          'Only message customers who expect to hear from you and who gave you their number for that purpose. Using the service to send spam or unsolicited messages is prohibited. You must follow WhatsApp’s rules and messaging laws such as the TCPA in the United States.',
+          'When you share over WhatsApp or Messenger, the message is sent from your own account. When you choose SMS, the message is sent through our provider on your behalf.',
+          'Only message customers who expect to hear from you and who gave you their number for that purpose. Using the service to send spam or unsolicited messages is prohibited. You must follow WhatsApp’s and Messenger’s rules and messaging laws such as the TCPA in the United States.',
         ],
       },
       {

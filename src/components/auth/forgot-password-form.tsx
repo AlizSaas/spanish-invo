@@ -14,13 +14,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { requestPasswordReset } from '@/lib/auth-client'
+import { LOCALE_HEADER } from '@/lib/constants'
 import { useT } from '@/lib/i18n'
+import { useUiStore } from '@/stores/ui-store'
 
 const schema = z.object({ email: z.string().trim().email() })
 type Values = z.infer<typeof schema>
 
 export function ForgotPasswordForm() {
   const t = useT()
+  const locale = useUiStore((s) => s.locale)
   const [sent, setSent] = useState(false)
   const {
     register,
@@ -36,6 +39,7 @@ export function ForgotPasswordForm() {
     await requestPasswordReset({
       email: values.email,
       redirectTo: '/reset-password',
+      fetchOptions: { headers: { [LOCALE_HEADER]: locale } },
     })
     setSent(true)
   })

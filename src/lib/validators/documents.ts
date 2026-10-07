@@ -59,7 +59,12 @@ export const markPaidSchema = z.object({
   paidAt: z.string().regex(DATE_ONLY).optional(),
 })
 
-export const shareChannelSchema = z.enum(['whatsapp', 'sms', 'link'])
+export const shareChannelSchema = z.enum([
+  'whatsapp',
+  'messenger',
+  'sms',
+  'link',
+])
 export type ShareChannel = z.infer<typeof shareChannelSchema>
 
 export const recordShareSchema = z.object({

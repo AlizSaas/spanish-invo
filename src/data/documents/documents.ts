@@ -6,6 +6,8 @@ import {
   logEvent,
   refreshOverdue,
 } from './helpers'
+import type { InvoiceEventType } from '@/lib/constants'
+import type { ShareChannel } from '@/lib/validators/documents'
 import {
   clients,
   invoiceEvents,
@@ -15,7 +17,7 @@ import {
   settings,
 } from '@/db/schema'
 import { authMiddleware } from '@/middlewares/dependencies'
-import { SMS_DAILY_LIMIT, SMS_MAX_CHARS } from '@/lib/constants'
+import { SMS_DAILY_LIMIT, SMS_ENABLED, SMS_MAX_CHARS } from '@/lib/constants'
 import {
   addDays,
   dateOnlyToDb,
@@ -25,6 +27,7 @@ import {
 } from '@/lib/dates'
 import { computeTotals, money } from '@/lib/invoice-math'
 import { fill, getDictionary } from '@/lib/i18n'
+import { assertCanCreateDocument } from '@/lib/plan'
 import { formatCurrency, formatDate, toWhatsAppNumber } from '@/lib/utils'
 import {
   documentIdSchema,
@@ -137,6 +140,7 @@ export const createDocumentFn = createServerFn({ method: 'POST' })
   .handler(async ({ context, data }) => {
     const { db, user } = context
     await assertOwnClient(db, user.id, data.clientId)
+    await assertCanCreateDocument(db, user.id, data.type)
     const doc = await db.transaction((tx) => insertDocument(tx, user.id, data))
     await tryIndexDocument(context.env, db, doc.id)
     return doc
@@ -327,6 +331,7 @@ export const convertEstimateFn = createServerFn({ method: 'POST' })
       with: { items: { orderBy: invoiceItems.sortOrder } },
     })
     if (!est) throw new Error('NOT_FOUND')
+    await assertCanCreateDocument(db, user.id, 'invoice')
     const s = await db.query.settings.findFirst({
       where: eq(settings.userId, user.id),
     })
@@ -375,6 +380,7 @@ export const duplicateDocumentFn = createServerFn({ method: 'POST' })
       with: { items: { orderBy: invoiceItems.sortOrder } },
     })
     if (!src) throw new Error('NOT_FOUND')
+    await assertCanCreateDocument(db, user.id, src.type)
     const s = await db.query.settings.findFirst({
       where: eq(settings.userId, user.id),
     })
@@ -407,8 +413,15 @@ export const duplicateDocumentFn = createServerFn({ method: 'POST' })
   })
 
 // ---------------------------------------------------------------------------
-// Share (WhatsApp deep link / Twilio SMS / copy link)
+// Share (WhatsApp deep link / Messenger / Twilio SMS / copy link)
 // ---------------------------------------------------------------------------
+
+const SHARE_EVENTS = {
+  whatsapp: 'sent_whatsapp',
+  messenger: 'sent_messenger',
+  sms: 'sent_sms',
+  link: 'link_copied',
+} as const satisfies Record<ShareChannel, InvoiceEventType>
 
 /** Ensures the public link exists and returns everything the share dialog needs. */
 export const prepareShareFn = createServerFn({ method: 'POST' })
@@ -453,11 +466,14 @@ export const prepareShareFn = createServerFn({ method: 'POST' })
       language,
       clientPhone: doc.client.phone,
       clientName: doc.client.name,
-      smsConfigured: isSmsConfigured(env),
+      smsConfigured: SMS_ENABLED && isSmsConfigured(env),
     }
   })
 
-/** Records the share, moves draft → sent, and for SMS actually sends via Twilio. */
+/**
+ * Records the share, moves draft → sent, and for SMS actually sends via Twilio.
+ * Messenger needs no phone: the owner picks the chat in Messenger itself.
+ */
 export const recordShareFn = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .validator(recordShareSchema)
@@ -480,6 +496,7 @@ export const recordShareFn = createServerFn({ method: 'POST' })
       whatsappUrl = `https://wa.me/${toWhatsAppNumber(doc.client.phone)}?text=${encodeURIComponent(message)}`
     }
     if (data.channel === 'sms') {
+      if (!SMS_ENABLED) throw new Error('SMS_NOT_CONFIGURED')
       if (!doc.client.phone) throw new Error('CLIENT_NO_PHONE')
       // SMS leaves through our Twilio account, so every message must carry the
       // invoice link, stay short, and fit the account's daily budget.
@@ -512,13 +529,9 @@ export const recordShareFn = createServerFn({ method: 'POST' })
           sentAt: doc.sentAt ?? new Date(),
         })
         .where(and(eq(invoices.id, doc.id), eq(invoices.userId, user.id)))
-      const eventType =
-        data.channel === 'whatsapp'
-          ? 'sent_whatsapp'
-          : data.channel === 'sms'
-            ? 'sent_sms'
-            : 'link_copied'
-      await logEvent(tx, doc.id, eventType, { to: doc.client.phone ?? null })
+      await logEvent(tx, doc.id, SHARE_EVENTS[data.channel], {
+        to: data.channel === 'messenger' ? null : (doc.client.phone ?? null),
+      })
     })
 
     return {

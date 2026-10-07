@@ -10,6 +10,7 @@ import type {
   OnboardingFormInput,
   OnboardingInput,
 } from '@/lib/validators/settings'
+import { PhoneInput } from '@/components/phone-input'
 import { LogoUploader } from '@/components/settings/logo-uploader'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,7 +34,6 @@ import { SETTINGS_QUERY_KEY } from '@/data/settings/queries'
 import { completeOnboardingFn } from '@/data/settings/settings'
 import { CURRENCIES, TIMEZONES } from '@/lib/constants'
 import { errorMessage, resolveMessage, useT } from '@/lib/i18n'
-import { normalizePhone } from '@/lib/utils'
 import { onboardingSchema } from '@/lib/validators/settings'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -169,19 +169,13 @@ export function OnboardingWizard({ settings }: { settings: Settings }) {
               control={control}
               name="businessPhone"
               render={({ field }) => (
-                <Input
+                <PhoneInput
                   id="businessPhone"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="+1 502 555 0100"
-                  value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value || null)}
-                  onBlur={() => {
-                    const v = field.value
-                    if (v) field.onChange(normalizePhone(v) ?? v)
-                    field.onBlur()
-                  }}
-                  aria-invalid={!!errors.businessPhone}
+                  ref={field.ref}
+                  value={field.value}
+                  onChange={(v) => field.onChange(v || null)}
+                  onBlur={field.onBlur}
+                  invalid={!!errors.businessPhone}
                 />
               )}
             />
@@ -190,7 +184,9 @@ export function OnboardingWizard({ settings }: { settings: Settings }) {
             </FieldDescription>
             <FieldError
               errors={[
-                errors.businessPhone && { message: t.clients.invalidPhone },
+                errors.businessPhone && {
+                  message: resolveMessage(t, errors.businessPhone.message),
+                },
               ]}
             />
           </Field>

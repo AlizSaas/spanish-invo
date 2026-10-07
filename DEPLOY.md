@@ -52,8 +52,14 @@ wrangler secret put TWILIO_FROM_NUMBER
 ## 5. Legal
 
 - [ ] Read `/privacy` and `/terms` (`src/content/legal/es.ts`, `en.ts`). They describe
-      what the code actually does today (Cloudflare, Neon, OpenAI, Twilio, public
+      what the code did before billing (Cloudflare, Neon, OpenAI, Twilio, public
       invoice links, no payment processing). Have a lawyer review them before launch.
+- [ ] Add Stripe billing to both languages before charging anyone. Terms → "Price"
+      still says the service is free: replace it with the Pro prices, the 14-day trial
+      (once per account), automatic renewal, cancellation (Pro stays until the end of
+      the paid period) and your refund policy. Terms → "What Factura Fácil is": "we do
+      not process payments" should be limited to your customers' invoice payments.
+      Privacy → "Who we share data with": add Stripe (payments and billing).
 - [ ] Fill in the governing-law state in the Terms (both languages) and the legal
       entity name if you operate as an LLC.
 - [ ] Any time the text changes, update the `updated` date in both files.
@@ -68,7 +74,10 @@ wrangler secret put TWILIO_FROM_NUMBER
 - [ ] Optional: Cloudflare **Turnstile** on signup if you see spam accounts.
 - [ ] Workers **observability** is on; add a **Notification** for Worker error rate.
 
-- [ ] **Twilio**: restrict Geo Permissions to the countries you actually serve and set a
+- [ ] **Twilio**: SMS is switched off in code until Twilio approves the verification:
+      `SMS_ENABLED` in `src/lib/constants.ts` hides the SMS button and the server refuses
+      the channel. After approval, set it to `true` and redeploy.
+      Restrict Geo Permissions to the countries you actually serve and set a
       spend alert. The app already caps SMS at 480 characters and 50 per account per day
       and forces the invoice link into every message, but the account-level limits are
       your backstop. For A2P 10DLC or toll-free verification, use
@@ -95,7 +104,9 @@ Still open, by design or product decision:
 - [ ] The public payload includes the invoice id and owner id (the owner id is already
       visible in the logo URL). Harmless today because every endpoint is user-scoped.
 - [ ] Anonymous opens of a shared link each write a `viewed` event; add de-duplication
-      if a customer refreshing a page ever becomes a problem.
+      if a customer refreshing a page ever becomes a problem. Link-preview fetchers
+      (Messenger, WhatsApp, iMessage, Slack, search crawlers) are recognized by user
+      agent and don't count as opens.
 
 ## 7. After the first deploy, verify
 
@@ -108,6 +119,11 @@ Still open, by design or product decision:
       `/api/*` include `X-Robots-Tag: noindex`.
 - [ ] Sign up → welcome email arrives (Workflow); password reset email arrives.
 - [ ] Share an invoice: the WhatsApp message and PDF link use `https://facturafacilapp.com/i/…`.
+- [ ] Messenger preview: paste an invoice link into the Facebook Sharing Debugger
+      (https://developers.facebook.com/tools/debug/) and click **Scrape Again**. It should
+      show "Invoice INV-… from <business>" with the total and due date, not the homepage
+      title. If it reports a robots.txt block or a 403, check that `/robots.txt` is the
+      new version and that Bot Fight Mode isn't challenging `facebookexternalhit`.
 - [ ] Upload a logo in Settings. Worker logs should not show `logo transform skipped`; if
       they do, enable Cloudflare Images for the account (Images → Get started, 5,000 free
       transformations a month). Logos still work without it, just not resized to WebP.
@@ -124,3 +140,29 @@ Still open, by design or product decision:
 
 Re-run the audit before each release; bump `@cloudflare/puppeteer` and `drizzle-kit`
 when they ship updated dependencies.
+
+## 9. Stripe billing (Gratis + Pro)
+
+Subscriptions run through the Better Auth Stripe plugin. Stripe owns the money; the app
+only reads the `subscription` table it fills from webhooks.
+
+- [ ] Secrets: `wrangler secret put STRIPE_SECRET_KEY` and `wrangler secret put STRIPE_WEBHOOK_SECRET`.
+      Start with **test-mode** keys; switch both to live keys at launch.
+- [ ] Prices: `STRIPE_PRICE_PRO_MONTHLY` and `STRIPE_PRICE_PRO_YEARLY` in `wrangler.jsonc`
+      must match the mode of the secret key (test IDs with test key, live IDs with live key).
+      Both live on the same Pro product: $19.99 recurring **monthly** and $199 recurring **yearly**.
+      Check the billing period on each price; it cannot be edited after creation.
+- [ ] Webhook endpoint in the Stripe dashboard: `https://facturafacilapp.com/api/auth/stripe/webhook`
+      with events `checkout.session.completed`, `customer.subscription.created`,
+      `customer.subscription.updated`, `customer.subscription.deleted`. Create it separately
+      for test and live mode; each has its own signing secret.
+- [ ] Customer portal enabled (cancel, update card, switch monthly/yearly).
+- [ ] Database: run the migration that adds `subscription` and `user.stripe_customer_id`
+      (`pnpm db:migrate`) before deploying this version.
+- [ ] Kentucky sales tax (6% on SaaS, in-state seller): register for a KY sales and use tax
+      permit, activate Stripe Tax with the Louisville origin address, set the Pro product's
+      tax code to "SaaS – business use", then set `STRIPE_AUTOMATIC_TAX` to `"true"`.
+      Until then leave it `"false"` or Checkout errors.
+- [ ] Local testing: `stripe listen --forward-to localhost:3000/api/auth/stripe/webhook --events "checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted"`
+      (newer CLI versions require `--events`; keep the quotes, PowerShell splits a bare
+      comma list) and card `4242 4242 4242 4242`.

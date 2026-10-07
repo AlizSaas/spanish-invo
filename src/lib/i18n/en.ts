@@ -3,7 +3,7 @@ import type { Dictionary } from './es'
 export const en: Dictionary = {
   common: {
     appName: 'Factura Fácil',
-    tagline: 'Professional invoices over WhatsApp, no hassle.',
+    tagline: 'Professional invoices over WhatsApp and Messenger, no hassle.',
     save: 'Save',
     saving: 'Saving…',
     cancel: 'Cancel',
@@ -56,20 +56,58 @@ export const en: Dictionary = {
     account: 'Account',
   },
   landing: {
-    heroTitle: 'Get paid faster. Invoice over WhatsApp.',
+    heroTitle: 'Get paid faster. Invoice over WhatsApp and Messenger.',
     heroBody:
-      'Create professional invoices and estimates in Spanish or English and send them straight to your customer’s WhatsApp or SMS. No cards, no fees: they pay you by Zelle, Cash App, cash or check and you mark the invoice paid.',
+      'Create professional invoices and estimates in Spanish or English and send them straight to your customer’s WhatsApp or Messenger. No cards, no fees: they pay you by Zelle, Cash App, cash or check and you mark the invoice paid.',
     ctaPrimary: 'Start for free',
     ctaSecondary: 'I already have an account',
     feature1Title: 'Ready in 2 minutes',
     feature1Body: 'Enter your business name and how you get paid. That’s it.',
-    feature2Title: 'Send by WhatsApp or SMS',
+    feature2Title: 'Send by WhatsApp or Messenger',
     feature2Body:
       'Your customer opens a clean link with the invoice and can download the PDF.',
     feature3Title: 'You stay in control',
     feature3Body:
       'No payment processors. Mark each invoice paid when the money arrives.',
     forWho: 'Built for landscapers, cleaners, mechanics, contractors and more.',
+    demoTitle: 'See how it works',
+    demoSubtitle:
+      'From zero to an invoice in your customer’s WhatsApp, in less time than a coffee break.',
+    demoCta: 'Watch the 2-minute demo',
+    demoSoon: 'Video coming soon (add the YouTube ID in demo-video.tsx)',
+    tradesTitle: 'Made for your trade',
+    tradesSubtitle:
+      'How each kind of business uses it, from the first job to getting paid.',
+    trades: [
+      {
+        trade: 'Landscaping',
+        body: 'Finish the mow, send the invoice over WhatsApp from the truck and head to the next yard.',
+      },
+      {
+        trade: 'Cleaning',
+        body: 'Bill each house separately and mark the invoice paid when the Zelle comes in.',
+      },
+      {
+        trade: 'Mechanics',
+        body: 'List parts and labor so the customer sees exactly what they’re paying for.',
+      },
+      {
+        trade: 'Contractors',
+        body: 'Send the estimate first and turn it into an invoice with one tap once it’s approved.',
+      },
+      {
+        trade: 'Painters',
+        body: 'Your logo and details on every invoice: looks professional without paying a designer.',
+      },
+      {
+        trade: 'Handyman',
+        body: 'Invoice in Spanish or English depending on the customer, from the same account.',
+      },
+      {
+        trade: 'Movers',
+        body: 'Get paid by Zelle, Cash App or cash and mark each payment, with no fees.',
+      },
+    ],
   },
   auth: {
     login: {
@@ -180,7 +218,8 @@ export const en: Dictionary = {
     searchPlaceholder: 'Search by name, phone or company',
     name: 'Name',
     phone: 'Phone (WhatsApp)',
-    phoneHelp: 'With country code, e.g. +1 502 555 0100',
+    phoneHelp:
+      'Pick the number’s country. With the right country code, WhatsApp can find your customer.',
     email: 'Email',
     company: 'Company',
     address: 'Address',
@@ -189,7 +228,8 @@ export const en: Dictionary = {
     preferredLanguageHelp:
       'Invoices for this client will be created in this language.',
     contactRequired: 'Add a phone or an email',
-    invalidPhone: 'Invalid number. Use the format +1 502 555 0100',
+    invalidPhone:
+      'That number isn’t valid for the selected country. Check the country and the digits.',
     archived: 'Archived',
     archive: 'Archive',
     unarchive: 'Restore',
@@ -207,6 +247,13 @@ export const en: Dictionary = {
     whatsapp: 'Open WhatsApp',
     call: 'Call',
   },
+  phone: {
+    country: 'Phone number country',
+    chooseCountry: 'Country',
+    frequent: 'Most used',
+    allCountries: 'All countries',
+    needCountry: 'Pick the number’s country to add its code (+1, +52…).',
+  },
   docs: {
     invoices: 'Invoices',
     estimates: 'Estimates',
@@ -220,7 +267,7 @@ export const en: Dictionary = {
     editEstimate: 'Edit estimate',
     emptyInvoicesTitle: 'No invoices yet',
     emptyInvoicesBody:
-      'Create your first invoice and send it over WhatsApp in a minute.',
+      'Create your first invoice and send it over WhatsApp or Messenger in a minute.',
     emptyEstimatesTitle: 'No estimates yet',
     emptyEstimatesBody:
       'An estimate is a quote. When the customer accepts, convert it into an invoice.',
@@ -328,6 +375,7 @@ export const en: Dictionary = {
         created: 'Created',
         updated: 'Edited',
         sent_whatsapp: 'Shared on WhatsApp',
+        sent_messenger: 'Shared on Messenger',
         sent_sms: 'Sent by SMS',
         link_copied: 'Link copied',
         viewed: 'Customer opened it',
@@ -342,10 +390,20 @@ export const en: Dictionary = {
       subtitle: 'Choose how to send it to your customer.',
       whatsapp: 'Send on WhatsApp',
       whatsappHelp: 'Opens WhatsApp with the message and link pre-filled.',
+      messenger: 'Send on Messenger',
+      messengerHelp: 'Pick Messenger, then your customer.',
+      messengerHelpDesktop:
+        'Copies the message and opens Messenger to paste it.',
+      messengerCopied:
+        'Message copied. Paste it in your customer’s Messenger chat.',
+      openMessenger: 'Open Messenger',
       sms: 'Send by SMS',
       smsHelp: 'For customers without WhatsApp. Sent from our number.',
       smsSent: 'SMS sent',
       messageLanguage: 'Message language',
+      smsComingSoon: 'Coming soon',
+      smsComingSoonHelp:
+        'SMS sending is being activated. Use WhatsApp, Messenger or copy the link for now.',
       smsTooLong:
         'The SMS is too long (480 characters max). Shorten it or send on WhatsApp.',
       smsDailyLimit:
@@ -353,7 +411,7 @@ export const en: Dictionary = {
       copyLink: 'Copy link',
       linkCopied: 'Link copied',
       noPhone:
-        'This client has no phone number. Add one to share by WhatsApp or SMS.',
+        'This client has no phone number. Add one to share on WhatsApp, or send it on Messenger.',
       addPhone: 'Add phone',
       preview: 'Message',
       editMessage: 'You can edit the message before sending.',
@@ -467,6 +525,73 @@ export const en: Dictionary = {
     poweredBy: 'Made with',
     notFound: 'This invoice does not exist or the link has expired.',
     contact: 'Contact',
+    ogInvoiceTitle: 'Invoice {number} from {business}',
+    ogEstimateTitle: 'Estimate {number} from {business}',
+    ogInvoiceDescription:
+      'Total {total} · Due {due}. Open it to see the details and download the PDF.',
+    ogEstimateDescription:
+      'Total {total} · Valid until {due}. Open it to see the details and download the PDF.',
+  },
+  billing: {
+    title: 'Your plan',
+    free: 'Free',
+    pro: 'Pro',
+    trialing: 'Free trial until {date}',
+    renews: 'Renews on {date}',
+    cancelsOn: 'Ends on {date}. You can turn it back on any time.',
+    pastDue: 'A payment is pending. Update your card to keep Pro.',
+    usage:
+      'This month: {invoices} of {limit} invoices · {estimates} of {limit} estimates',
+    unlimited: 'Unlimited invoices and estimates',
+    upgrade: 'Upgrade to Pro',
+    manage: 'Manage subscription',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    perMonth: '/mo',
+    perYear: '/yr',
+    trialNote: '14 days free. Cancel anytime.',
+    limitReached:
+      'You reached the Free plan limit (3 invoices and 3 estimates a month). Upgrade to Pro to keep going.',
+    limitTitle: 'You reached the Free plan limit',
+    documentsLimitBody:
+      'The Free plan includes 3 invoices and 3 estimates a month. Pro makes them unlimited, along with the AI assistant.',
+    aiLimitBody:
+      'The Free plan includes 10 AI assistant questions a month. Pro makes them unlimited, along with your invoices and estimates.',
+    billedMonthly: 'Billed monthly',
+    billedYearly: 'Billed once a year · save 17%',
+    chooseMonthly: 'Choose monthly',
+    chooseYearly: 'Choose yearly',
+    notNow: 'Not now',
+    upgraded: 'Welcome to Pro! No more limits.',
+    processing: 'Confirming your payment with Stripe… a few seconds.',
+    notConfigured: 'Payments are not enabled yet.',
+  },
+  pricing: {
+    title: 'Simple pricing',
+    subtitle: 'Start free. Upgrade when your business asks for it.',
+    freeName: 'Free',
+    freeFeatures: [
+      '3 invoices and 3 estimates a month',
+      'Send by WhatsApp, Messenger, link and PDF',
+      'AI assistant: 10 questions a month',
+    ],
+    proName: 'Pro',
+    proFeatures: [
+      'Unlimited invoices and estimates',
+      'No "Made with Factura Fácil" badge',
+      'Unlimited AI assistant',
+      'Priority support on WhatsApp',
+    ],
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    perMonth: '/mo',
+    perYear: '/yr',
+    yearlyNote: 'Save 17% · works out to $16.58 a month',
+    popular: 'Most popular',
+    ctaFree: 'Start for free',
+    ctaPro: 'Try Pro free for 14 days',
+    ctaSignedIn: 'See my plan',
+    taxNote: 'Prices in USD, plus tax where applicable.',
   },
   legal: {
     privacy: 'Privacy Policy',
