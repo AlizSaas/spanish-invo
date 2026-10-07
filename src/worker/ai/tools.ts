@@ -33,6 +33,7 @@ import {
 } from '@/lib/constants'
 import { DATE_ONLY, addDays, dateOnlyToDb, todayInZone } from '@/lib/dates'
 import { resolveDocumentDraft } from '@/lib/document-draft'
+import { phoneProblem } from '@/lib/phone'
 import { assertCanCreateDocument } from '@/lib/plan'
 import { clientInputSchema } from '@/lib/validators/clients'
 import { documentInputSchema } from '@/lib/validators/documents'
@@ -198,13 +199,15 @@ async function findClients(ctx: ToolContext, query: string, limit = 10) {
  */
 const CLIENT_ISSUES: Record<string, string> = {
   'phone.needCountry':
-    'The phone number has no country code. Ask which country it is from (+1 United States, +52 Mexico…) unless the user already said, then retry with the code.',
-  'clients.invalidPhone':
-    'That phone number is not valid for its country. Ask the user to check the digits.',
+    'The phone number has no country code. Do not ask the user to retype it: unless they named another country, retry right away with the owner’s country code from the Context section (or the code of the country they named) in front of the same digits.',
   'clients.email': 'That email address is not valid. Ask the user to check it.',
   'clients.contactRequired':
     'A client needs a phone (preferred: invoices are sent over WhatsApp) or an email. Ask the user for one.',
 }
+
+/** The invalid-phone message carries the reason, so the model can say what's wrong. */
+const invalidPhoneIssue = (phone: string) =>
+  `That phone number is not a real number: ${phoneProblem(phone)} Tell the user this reason in one sentence, quote the number as they wrote it, and ask for the correct number or an email. Never suggest the same number back and never make up example numbers.`
 
 const createClientInput = z
   .object({
@@ -215,7 +218,7 @@ const createClientInput = z
       .max(30)
       .optional()
       .describe(
-        'International format with the country code, e.g. "+1 502 555 0100" or "+52 55 1234 5678"',
+        'International format with the country code, e.g. "+1 502 555 0100" or "+52 55 1234 5678". If the user gave no code, add the owner’s country code.',
       ),
     email: z.string().trim().max(254).optional(),
     company: z.string().trim().max(120).optional(),
@@ -236,7 +239,10 @@ const createClientInput = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: issue.path,
-        message: CLIENT_ISSUES[issue.message] ?? issue.message,
+        message:
+          issue.message === 'clients.invalidPhone' && input.phone
+            ? invalidPhoneIssue(input.phone)
+            : (CLIENT_ISSUES[issue.message] ?? issue.message),
       })
     }
   })

@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand/logo'
 import { LanguageToggle } from '@/components/language-toggle'
 import { AssistantDemo } from '@/components/marketing/assistant-demo'
 import { DemoVideo } from '@/components/marketing/demo-video'
+import { FaqSection } from '@/components/marketing/faq-section'
 import { PricingSection } from '@/components/marketing/pricing-section'
 import { TradesMarquee } from '@/components/marketing/trades-marquee'
 import { SiteFooter } from '@/components/site-footer'
@@ -92,6 +93,8 @@ function Landing() {
         <TradesMarquee />
 
         <PricingSection signedIn={signedIn} />
+
+        <FaqSection />
       </main>
 
       <SiteFooter />

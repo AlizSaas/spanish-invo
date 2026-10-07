@@ -145,6 +145,51 @@ export const es = {
         body: 'Te pagan por Zelle, Cash App o en efectivo y tú marcas cada pago sin comisiones.',
       },
     ],
+    faqTitle: 'Preguntas frecuentes',
+    /** {email} is rendered as a mailto link. */
+    faqContact: '¿Tienes otra pregunta? Escríbenos a {email}.',
+    faq: [
+      {
+        q: '¿De verdad es gratis?',
+        a: 'Sí. El plan Gratis no vence y no pide tarjeta: incluye 3 facturas y 3 presupuestos al mes y 10 preguntas al asistente IA. El contador vuelve a cero cada mes.',
+      },
+      {
+        q: '¿Cuánto cuesta Pro y qué incluye?',
+        a: 'Pro cuesta $19.99 al mes o $199 al año (unos $16.58 al mes), más impuestos donde aplique. Incluye facturas, presupuestos y asistente IA ilimitados, quita la marca "Hecho con Factura Fácil" y te da soporte prioritario por WhatsApp.',
+      },
+      {
+        q: '¿Cómo funciona la prueba de 14 días?',
+        a: 'Al elegir Pro, Stripe te pide una tarjeta, pero no te cobra nada durante 14 días. Si no cancelas antes, el día 15 se cobra el plan que elegiste y se renueva automáticamente. La prueba es una sola vez por cuenta.',
+      },
+      {
+        q: '¿Puedo cancelar cuando quiera?',
+        a: 'Sí, en Configuración → Administrar suscripción, sin llamar a nadie. Sigues con Pro hasta el final del periodo que pagaste; después vuelves al plan Gratis y tus clientes y facturas se quedan donde están.',
+      },
+      {
+        q: '¿Cobran comisión por mis pagos?',
+        a: 'No. Factura Fácil no procesa los pagos de tus clientes: te pagan por Zelle, Cash App, efectivo o cheque, como ya lo hacen, y tú marcas la factura como pagada.',
+      },
+      {
+        q: '¿Mi cliente necesita instalar algo?',
+        a: 'No. Le llega un enlace por WhatsApp o Messenger (o donde lo pegues); lo abre en el navegador del celular, ve la factura y puede descargar el PDF.',
+      },
+      {
+        q: '¿La IA puede equivocarse o guardar algo sin permiso?',
+        a: 'La IA prepara el cliente o la factura y te la muestra en una tarjeta. No se guarda nada hasta que tocas "Sí, crear", y los totales e impuestos los calcula la app, no la IA. Siempre puedes editar o llenar la factura tú mismo.',
+      },
+      {
+        q: '¿Puedo hacer facturas en inglés?',
+        a: 'Sí. Cada cliente tiene su idioma: la factura y el mensaje le llegan en español o en inglés, desde la misma cuenta. La app también se puede usar en los dos idiomas.',
+      },
+      {
+        q: '¿Mis datos están seguros?',
+        a: 'Todo viaja cifrado y solo tú ves tus clientes y facturas. No vendemos tus datos ni los usamos para entrenar inteligencia artificial. Los detalles están en la Política de privacidad.',
+      },
+      {
+        q: '¿Puedo poner mi logo?',
+        a: 'Sí, en los dos planes. Sube tu logo y tus datos en Configuración y salen en cada factura y presupuesto.',
+      },
+    ],
   },
   auth: {
     login: {
@@ -618,7 +663,6 @@ export const es = {
     pastDue: 'Hay un pago pendiente. Actualiza tu tarjeta para no perder Pro.',
     usage:
       'Este mes: {invoices} de {limit} facturas · {estimates} de {limit} presupuestos',
-    unlimited: 'Facturas y presupuestos ilimitados',
     upgrade: 'Mejorar a Pro',
     manage: 'Administrar suscripción',
     monthly: 'Mensual',
@@ -655,8 +699,9 @@ export const es = {
     proName: 'Pro',
     proFeatures: [
       'Facturas y presupuestos ilimitados',
+      'Conversaciones ilimitadas con el asistente IA',
+      'La IA crea clientes, facturas y presupuestos por ti, sin límite',
       'Sin la marca "Hecho con Factura Fácil"',
-      'Asistente IA ilimitado',
       'Soporte prioritario por WhatsApp',
     ],
     monthly: 'Mensual',

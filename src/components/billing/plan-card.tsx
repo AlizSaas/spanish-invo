@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { Crown, Sparkles } from 'lucide-react'
+import { Check, Crown, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -133,9 +133,14 @@ export function PlanCard({ justUpgraded = false }: { justUpgraded?: boolean }) {
             {statusLine}
           </p>
           {isPro && (
-            <p className="text-muted-foreground mt-1 text-sm">
-              {t.billing.unlimited}
-            </p>
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {t.pricing.proFeatures.map((f) => (
+                <li key={f} className="flex items-start gap-2">
+                  <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 

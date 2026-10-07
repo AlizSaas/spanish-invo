@@ -142,6 +142,50 @@ export const en: Dictionary = {
         body: 'Get paid by Zelle, Cash App or cash and mark each payment, with no fees.',
       },
     ],
+    faqTitle: 'Frequently asked questions',
+    faqContact: 'Have another question? Email us at {email}.',
+    faq: [
+      {
+        q: 'Is it really free?',
+        a: "Yes. The Free plan doesn't expire and doesn't ask for a card: it includes 3 invoices and 3 estimates a month and 10 questions to the AI assistant. The count resets every month.",
+      },
+      {
+        q: 'How much is Pro and what does it include?',
+        a: 'Pro is $19.99 a month or $199 a year (about $16.58 a month), plus tax where it applies. It includes unlimited invoices, estimates and AI assistant, removes the "Made with Factura Fácil" badge and adds priority support on WhatsApp.',
+      },
+      {
+        q: 'How does the 14-day trial work?',
+        a: "When you choose Pro, Stripe asks for a card but charges nothing for 14 days. If you don't cancel before then, the plan you chose is charged on day 15 and renews automatically. The trial is once per account.",
+      },
+      {
+        q: 'Can I cancel anytime?',
+        a: 'Yes, in Settings → Manage subscription, without calling anyone. You keep Pro until the end of the period you paid for; then you go back to the Free plan and your clients and invoices stay where they are.',
+      },
+      {
+        q: 'Do you take a fee from my payments?',
+        a: "No. Factura Fácil doesn't process your customers' payments: they pay you by Zelle, Cash App, cash or check, like they already do, and you mark the invoice as paid.",
+      },
+      {
+        q: 'Does my customer need to install anything?',
+        a: 'No. They get a link over WhatsApp or Messenger (or wherever you paste it), open it in their phone browser, see the invoice and can download the PDF.',
+      },
+      {
+        q: 'Can the AI make mistakes or save something without asking?',
+        a: 'The AI prepares the client or invoice and shows it to you on a card. Nothing is saved until you tap "Yes, create", and totals and tax are calculated by the app, not the AI. You can always edit the invoice or fill it in yourself.',
+      },
+      {
+        q: 'Can I make invoices in English?',
+        a: 'Yes. Each client has a language: the invoice and the message reach them in Spanish or English, from the same account. The app itself works in both languages too.',
+      },
+      {
+        q: 'Is my data safe?',
+        a: "Everything travels encrypted and only you see your clients and invoices. We don't sell your data or use it to train AI. The details are in the Privacy Policy.",
+      },
+      {
+        q: 'Can I add my logo?',
+        a: 'Yes, on both plans. Upload your logo and business details in Settings and they appear on every invoice and estimate.',
+      },
+    ],
   },
   auth: {
     login: {
@@ -608,7 +652,6 @@ export const en: Dictionary = {
     pastDue: 'A payment is pending. Update your card to keep Pro.',
     usage:
       'This month: {invoices} of {limit} invoices · {estimates} of {limit} estimates',
-    unlimited: 'Unlimited invoices and estimates',
     upgrade: 'Upgrade to Pro',
     manage: 'Manage subscription',
     monthly: 'Monthly',
@@ -645,8 +688,9 @@ export const en: Dictionary = {
     proName: 'Pro',
     proFeatures: [
       'Unlimited invoices and estimates',
+      'Unlimited conversations with the AI assistant',
+      'The AI creates clients, invoices and estimates for you, no limit',
       'No "Made with Factura Fácil" badge',
-      'Unlimited AI assistant',
       'Priority support on WhatsApp',
     ],
     monthly: 'Monthly',
