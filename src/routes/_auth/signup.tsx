@@ -12,11 +12,11 @@ export const Route = createFileRoute('/_auth/signup')({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: 'Crear cuenta — Factura Fácil' },
+      { title: 'Sign up — Factura Fácil' },
       {
         name: 'description',
         content:
-          'Crea tu cuenta gratis: 3 facturas y 3 presupuestos al mes sin costo, con un asistente de IA que los prepara por ti y los envía por WhatsApp.',
+          'Create your free account: 3 invoices and 3 estimates a month at no cost, with an AI assistant that prepares them for you and sends them by WhatsApp.',
       },
       { property: 'og:url', content: pageUrl('/signup') },
     ],

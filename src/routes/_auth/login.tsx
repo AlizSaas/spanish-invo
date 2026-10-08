@@ -12,11 +12,11 @@ export const Route = createFileRoute('/_auth/login')({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: 'Entrar — Factura Fácil' },
+      { title: 'Log in — Factura Fácil' },
       {
         name: 'description',
         content:
-          'Entra a tu cuenta de Factura Fácil para crear, enviar y cobrar tus facturas y presupuestos.',
+          'Log in to your Factura Fácil account to create, send and get paid for your invoices and estimates.',
       },
       { property: 'og:url', content: pageUrl('/login') },
     ],

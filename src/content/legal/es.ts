@@ -8,7 +8,7 @@ import type { LegalContent } from './types'
 export const legalEs: LegalContent = {
   privacy: {
     title: 'Política de privacidad',
-    updated: '7 de octubre de 2026',
+    updated: '8 de octubre de 2026',
     intro:
       'Factura Fácil (facturafacilapp.com) es una herramienta para crear facturas y presupuestos y compartirlos por WhatsApp, Messenger o SMS, con un plan gratis y un plan Pro de pago. Esta política explica qué datos recopilamos, para qué los usamos, con quién los compartimos y qué derechos tienes. Si tienes dudas, escríbenos a {email}.',
     sections: [
@@ -32,6 +32,17 @@ export const legalEs: LegalContent = {
           'Para comunicarnos contigo: el correo de bienvenida y un recordatorio para terminar de configurar tu cuenta, la recuperación de contraseña, las confirmaciones de tu suscripción y avisos importantes sobre el servicio o estas políticas. Son correos del servicio y no se pueden desactivar mientras tu cuenta esté abierta. No enviamos publicidad de terceros.',
           'Para proteger el servicio: detectar bots y abusos, limitar intentos repetidos, prevenir fraudes y resolver errores.',
           'No usamos tus datos ni los de tus clientes para entrenar modelos de inteligencia artificial, y no los vendemos.',
+        ],
+      },
+      {
+        heading: 'Datos de usuario de Google',
+        body: [
+          'Qué datos obtenemos: si eliges “Continuar con Google”, le pedimos a Google solo los permisos básicos para iniciar sesión (openid, email y profile). Google nos envía tu nombre, tu correo, tu foto de perfil y un identificador único de tu cuenta de Google. No pedimos acceso a tu Gmail, Google Drive, Contactos, Calendario ni a ningún otro dato de Google.',
+          'Para qué los usamos: solo para crear tu cuenta de Factura Fácil, iniciar tu sesión, mostrar tu nombre y tu foto dentro de la app y enviarte los correos del servicio descritos arriba. Google también emite tokens de inicio de sesión, que guardamos solo para mantener tu cuenta vinculada a Google; no los usamos para leer nada más de tu cuenta de Google.',
+          'Cómo los guardamos y protegemos: se guardan en nuestra base de datos junto con el resto de tu cuenta, cifrados en tránsito (HTTPS) y accesibles solo para tu cuenta y para los proveedores que alojan el servicio (Cloudflare y Neon).',
+          'Con quién los compartimos: no vendemos los datos de usuario de Google, no los usamos para publicidad y no los compartimos con nadie, salvo con los proveedores de alojamiento indicados en “Con quién compartimos datos” o cuando la ley lo exija. No los usamos para entrenar modelos de IA.',
+          'Cuánto tiempo los guardamos y cómo borrarlos: los guardamos mientras tu cuenta esté abierta. Para borrar tu cuenta escríbenos a {email} y los eliminamos en un plazo de 30 días, como se explica en “Cuánto tiempo guardamos los datos”. También puedes quitarle el acceso a Factura Fácil cuando quieras en myaccount.google.com/permissions.',
+          'El uso y la transferencia que hace Factura Fácil de la información recibida de las API de Google cumplen la Política de datos de usuario de los servicios de las API de Google (developers.google.com/terms/api-services-user-data-policy), incluidos los requisitos de Uso limitado.',
         ],
       },
       {

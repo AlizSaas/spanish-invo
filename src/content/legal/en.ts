@@ -4,7 +4,7 @@ import type { LegalContent } from './types'
 export const legalEn: LegalContent = {
   privacy: {
     title: 'Privacy Policy',
-    updated: 'October 7, 2026',
+    updated: 'October 8, 2026',
     intro:
       'Factura Fácil (facturafacilapp.com) is a tool for creating invoices and estimates and sharing them over WhatsApp, Messenger or SMS, with a free plan and a paid Pro plan. This policy explains what data we collect, what we use it for, who we share it with and what rights you have. Questions? Write to {email}.',
     sections: [
@@ -28,6 +28,17 @@ export const legalEn: LegalContent = {
           'To communicate with you: the welcome email and a setup reminder, password resets, subscription confirmations and important notices about the service or these policies. These are service emails and are not optional while your account is open. We do not send third-party advertising.',
           'To protect the service: detect bots and abuse, limit repeated attempts, prevent fraud and fix errors.',
           'We do not use your data or your customers’ data to train artificial intelligence models, and we do not sell it.',
+        ],
+      },
+      {
+        heading: 'Google user data',
+        body: [
+          'What we access: if you choose “Continue with Google”, we ask Google only for the basic sign-in permissions (openid, email and profile). Google sends us your name, email address, profile photo and a unique Google account ID. We do not request access to your Gmail, Google Drive, Contacts, Calendar or any other Google data.',
+          'How we use it: only to create your Factura Fácil account, sign you in, show your name and photo inside the app, and send you the service emails described above. Google also issues sign-in tokens, which we store only to keep your account linked to Google; we do not use them to read anything else from your Google account.',
+          'How we store and protect it: this data is kept in our database with the rest of your account, encrypted in transit (HTTPS) and accessible only to your account and to the providers that host the service (Cloudflare and Neon).',
+          'Sharing: we do not sell Google user data, use it for advertising, or share it with anyone except the hosting providers listed in “Who we share data with” or when the law requires it. We do not use it to train AI models.',
+          'Retention and deletion: we keep it while your account is open. Delete your account by writing to {email} and we remove it within 30 days, as described in “How long we keep data”. You can also remove Factura Fácil’s access at any time at myaccount.google.com/permissions.',
+          'Factura Fácil’s use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy (developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.',
         ],
       },
       {

@@ -5,11 +5,11 @@ import { pageUrl } from '@/lib/constants'
 export const Route = createFileRoute('/terms')({
   head: () => ({
     meta: [
-      { title: 'Términos de servicio — Factura Fácil' },
+      { title: 'Terms of Service — Factura Fácil' },
       {
         name: 'description',
         content:
-          'Condiciones de uso de Factura Fácil: planes Free y Pro, prueba gratis, renovación, cancelación y reembolsos, documentos y mensajes a clientes.',
+          'Factura Fácil terms of use: Free and Pro plans, free trial, renewal, cancellation and refunds, documents and messages to clients.',
       },
       { property: 'og:url', content: pageUrl('/terms') },
     ],

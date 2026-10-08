@@ -9,6 +9,7 @@ import { ThemeProvider } from 'next-themes'
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
+import { LANGUAGES } from '@/lib/constants'
 import { useUiStore } from '@/stores/ui-store'
 
 interface RouterContext {
@@ -23,11 +24,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
-      { title: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp' },
+      { title: 'Factura Fácil: AI invoices, sent by WhatsApp' },
       {
         name: 'description',
         content:
-          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
+          'Tell the AI about the job and it prepares the client and the invoice. Review it and send it by WhatsApp or Messenger, in English or Spanish.',
       },
       { name: 'theme-color', content: '#2f7a4f' },
       // Link previews (WhatsApp, iMessage, social) when the site URL is shared.
@@ -35,16 +36,16 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: 'og:type', content: 'website' },
       {
         property: 'og:title',
-        content: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp',
+        content: 'Factura Fácil: AI invoices, sent by WhatsApp',
       },
       {
         property: 'og:description',
         content:
-          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
+          'Tell the AI about the job and it prepares the client and the invoice. Review it and send it by WhatsApp or Messenger, in English or Spanish.',
       },
       // og:url and the canonical link are set per public page (pageUrl).
-      { property: 'og:locale', content: 'es_US' },
-      { property: 'og:locale:alternate', content: 'en_US' },
+      { property: 'og:locale', content: 'en_US' },
+      { property: 'og:locale:alternate', content: 'es_US' },
       { name: 'twitter:card', content: 'summary' },
       // Chrome's page translation rewrites text nodes into <font> tags before
       // React hydrates, which crashes React (removeChild/insertBefore errors).
@@ -66,8 +67,14 @@ function RootComponent() {
   const locale = useUiStore((s) => s.locale)
 
   // Read persisted UI prefs (language, sidebar) only after mount to keep SSR markup stable.
+  // A ?lang=es|en link then overrides the saved language, so English readers
+  // (Google's OAuth reviewers) can be sent straight to the English pages.
   useEffect(() => {
-    void useUiStore.persist.rehydrate()
+    void Promise.resolve(useUiStore.persist.rehydrate()).then(() => {
+      const lang = new URLSearchParams(window.location.search).get('lang')
+      const match = LANGUAGES.find((l) => l === lang)
+      if (match) useUiStore.getState().setLocale(match)
+    })
   }, [])
 
   // Keep <html lang> in step with the UI language (screen readers, spell-check).
