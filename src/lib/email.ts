@@ -18,6 +18,7 @@ interface SendEmailInput {
   subject: string
   text: string
   html?: string
+  replyTo?: string
 }
 
 export async function sendEmail(
@@ -30,6 +31,7 @@ export async function sendEmail(
     subject: input.subject,
     text: input.text,
     html: input.html,
+    replyTo: input.replyTo,
   })
 }
 

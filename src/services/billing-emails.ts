@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import type { Database } from '@/db'
 import { settings, user } from '@/db/schema'
-import { DEFAULT_LANGUAGE } from '@/lib/constants'
+import { DEFAULT_LANGUAGE, SUPPORT_EMAIL } from '@/lib/constants'
 import { sendEmail } from '@/lib/email'
 import { subscriptionThankYouEmail } from '@/lib/email-templates'
 
@@ -45,5 +45,5 @@ export async function sendProThankYouEmail(
     nextChargeAt: trialEnd ?? toDate(item.current_period_end),
     timezone: prefs?.timezone ?? env.DEFAULT_TIMEZONE,
   })
-  await sendEmail(env, { to: owner.email, ...mail })
+  await sendEmail(env, { to: owner.email, replyTo: SUPPORT_EMAIL, ...mail })
 }

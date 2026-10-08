@@ -4,7 +4,7 @@ import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
 import type { Language } from '@/lib/constants'
 import { createDb } from '@/db'
 import { settings } from '@/db/schema'
-import { DEFAULT_LANGUAGE } from '@/lib/constants'
+import { DEFAULT_LANGUAGE, SUPPORT_EMAIL } from '@/lib/constants'
 import { sendEmail } from '@/lib/email'
 import { onboardingReminderEmail, welcomeEmail } from '@/lib/email-templates'
 
@@ -38,6 +38,7 @@ export class WelcomeEmailWorkflow extends WorkflowEntrypoint<
       async () => {
         await sendEmail(env, {
           to: email,
+          replyTo: SUPPORT_EMAIL,
           ...welcomeEmail({ appName: env.APP_NAME, name, appUrl, language }),
         })
       },
@@ -61,6 +62,7 @@ export class WelcomeEmailWorkflow extends WorkflowEntrypoint<
         async () => {
           await sendEmail(env, {
             to: email,
+            replyTo: SUPPORT_EMAIL,
             ...onboardingReminderEmail({
               appName: env.APP_NAME,
               name,

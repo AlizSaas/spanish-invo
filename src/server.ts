@@ -60,6 +60,7 @@ function createContext(env: Env, ctx: ExecutionContext): RequestContext {
       await env.KV.put(key, '1', { expirationTtl: 120 })
       const mail = passwordResetEmail({
         appName: env.APP_NAME,
+        appUrl: env.BETTER_AUTH_URL.replace(/\/$/, ''),
         name,
         url,
         language,
