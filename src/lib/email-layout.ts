@@ -167,6 +167,10 @@ export function renderEmail(opts: {
       : esc(appName)
   const host = new URL(appUrl).host
 
+  // The logo tile repeats email-mark.png's own green rounded square as a cell
+  // background: mail clients block or proxy remote images, and without it a
+  // blocked logo leaves an empty box next to the wordmark.
+
   const html = `<!doctype html>
 <html lang="${language}">
 <head>
@@ -187,7 +191,7 @@ export function renderEmail(opts: {
 <tr><td style="padding:0 4px 20px;">
 <a href="${esc(appUrl)}" style="text-decoration:none;">
 <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-<td valign="middle"><img src="${esc(appUrl)}/email-logo.png" width="40" height="40" alt="" style="display:block;border:0;"></td>
+<td width="40" height="40" align="center" valign="middle" style="width:40px;height:40px;background-color:${C.green};border-radius:9px;"><img src="${esc(appUrl)}/email-mark.png" width="40" height="40" alt="" style="display:block;border:0;border-radius:9px;"></td>
 <td valign="middle" style="padding-left:10px;font-size:22px;font-weight:700;letter-spacing:-0.3px;color:${C.ink};">${wordmark}</td>
 </tr></table>
 </a>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -75,6 +75,14 @@ export function OnboardingWizard({ settings }: { settings: Settings }) {
     formState,
   } = form
   const { errors, isSubmitting } = formState
+
+  // defaultValues are captured before the persisted UI prefs rehydrate, so the
+  // select would keep the store's initial Spanish even with English chosen.
+  // Follow the store instead; the select writes back through setLocale, and
+  // this also keeps it in step with the header toggle.
+  useEffect(() => {
+    setValue('locale', locale)
+  }, [locale, setValue])
 
   const mutation = useMutation({
     mutationFn: (data: OnboardingInput) => completeOnboardingFn({ data }),
