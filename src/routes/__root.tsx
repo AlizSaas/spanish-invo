@@ -110,6 +110,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" translate="no" suppressHydrationWarning>
       <head>
+        {/* Google Ads tag. Keep it the only one: a second tag double-counts conversions. */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18504097095" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'AW-18504097095');",
+          }}
+        />
         <HeadContent />
       </head>
       <body className="min-h-dvh antialiased">
