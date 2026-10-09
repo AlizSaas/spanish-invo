@@ -633,6 +633,8 @@ export const en: Dictionary = {
     overdue: 'OVERDUE',
     thanks: 'Thank you for your business.',
     poweredBy: 'Made with',
+    /** Offer under the free-plan badge: the client reading this invoice is often a small business too. */
+    brandingCta: 'Start invoicing for free',
     notFound: 'This invoice does not exist or the link has expired.',
     contact: 'Contact',
     ogInvoiceTitle: 'Invoice {number} from {business}',

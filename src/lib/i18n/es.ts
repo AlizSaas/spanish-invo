@@ -642,6 +642,8 @@ export const es = {
     overdue: 'VENCIDA',
     thanks: 'Gracias por su preferencia.',
     poweredBy: 'Hecho con',
+    /** Offer under the free-plan badge: the client reading this invoice is often a small business too. */
+    brandingCta: 'Crea tus facturas gratis',
     notFound: 'Esta factura no existe o el enlace expiró.',
     contact: 'Contacto',
     /** Link-preview card in WhatsApp/Messenger. {business} {number} {total} {due} get replaced. */

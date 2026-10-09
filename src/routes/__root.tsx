@@ -9,7 +9,7 @@ import { ThemeProvider } from 'next-themes'
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
-import { LANGUAGES } from '@/lib/constants'
+import { LANGUAGES, pageUrl } from '@/lib/constants'
 import { useUiStore } from '@/stores/ui-store'
 
 interface RouterContext {
@@ -24,11 +24,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
-      { title: 'Factura Fácil: AI invoices, sent by WhatsApp' },
+      { title: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp' },
       {
         name: 'description',
         content:
-          'Tell the AI about the job and it prepares the client and the invoice. Review it and send it by WhatsApp or Messenger, in English or Spanish.',
+          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
       },
       { name: 'theme-color', content: '#2f7a4f' },
       // Link previews (WhatsApp, iMessage, social) when the site URL is shared.
@@ -36,17 +36,28 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: 'og:type', content: 'website' },
       {
         property: 'og:title',
-        content: 'Factura Fácil: AI invoices, sent by WhatsApp',
+        content: 'Factura Fácil: facturas hechas con IA, enviadas por WhatsApp',
       },
       {
         property: 'og:description',
         content:
-          'Tell the AI about the job and it prepares the client and the invoice. Review it and send it by WhatsApp or Messenger, in English or Spanish.',
+          'Cuéntale el trabajo a la IA: ella prepara el cliente y la factura. Revísala y mándala por WhatsApp o Messenger, en español o inglés.',
       },
       // og:url and the canonical link are set per public page (pageUrl).
-      { property: 'og:locale', content: 'en_US' },
-      { property: 'og:locale:alternate', content: 'es_US' },
-      { name: 'twitter:card', content: 'summary' },
+      { property: 'og:locale', content: 'es_US' },
+      { property: 'og:locale:alternate', content: 'en_US' },
+      // Share card for WhatsApp, Messenger and Facebook — the channels this
+      // product is actually passed around in. Overridden per invoice on /i/.
+      { property: 'og:image', content: pageUrl('/og-cover.png') },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      {
+        property: 'og:image:alt',
+        content:
+          'Factura Fácil: facturas y presupuestos en español, enviados por WhatsApp.',
+      },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:image', content: pageUrl('/og-cover.png') },
       // Chrome's page translation rewrites text nodes into <font> tags before
       // React hydrates, which crashes React (removeChild/insertBefore errors).
       // The app ships its own ES/EN toggle, so opt out of browser translation.

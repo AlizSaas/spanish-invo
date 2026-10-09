@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { checkSessionFn } from '@/data/session'
 import { pageUrl } from '@/lib/constants'
 import { useT } from '@/lib/i18n'
+import { landingJsonLd } from '@/lib/structured-data'
 import { formatDate } from '@/lib/utils'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -33,6 +34,13 @@ function Landing() {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {/* Spanish structured data: what Google's AI answers and knowledge panel
+          read. Without it they describe a different "Factura Fácil" (the
+          Mexican SAT and Peruvian SUNAT products share the name). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: landingJsonLd() }}
+      />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4">
         <Logo />
         <div className="flex items-center gap-1">

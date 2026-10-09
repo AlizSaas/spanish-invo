@@ -6,11 +6,11 @@ import { pageUrl } from '@/lib/constants'
 export const Route = createFileRoute('/sms-consent')({
   head: () => ({
     meta: [
-      { title: 'SMS Consent — Factura Fácil' },
+      { title: 'Consentimiento SMS — Factura Fácil' },
       {
         name: 'description',
         content:
-          'Which SMS messages businesses using Factura Fácil send, how consent is collected and how to opt out (STOP).',
+          'Qué mensajes SMS envían los negocios que usan Factura Fácil, cómo se obtiene el consentimiento y cómo darse de baja (STOP).',
       },
       { property: 'og:url', content: pageUrl('/sms-consent') },
     ],

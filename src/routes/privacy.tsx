@@ -5,11 +5,11 @@ import { pageUrl } from '@/lib/constants'
 export const Route = createFileRoute('/privacy')({
   head: () => ({
     meta: [
-      { title: 'Privacy Policy — Factura Fácil' },
+      { title: 'Política de privacidad — Factura Fácil' },
       {
         name: 'description',
         content:
-          'What data Factura Fácil collects, who it is shared with (including Stripe payments) and how to exercise your rights.',
+          'Qué datos recopila Factura Fácil, con quién los comparte (incluidos los pagos con Stripe) y cómo puedes ejercer tus derechos.',
       },
       { property: 'og:url', content: pageUrl('/privacy') },
     ],

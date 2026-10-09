@@ -251,10 +251,23 @@ export function DocumentView({
         </article>
 
         {doc.showBranding && (
-          <div className="no-print text-muted-foreground mt-6 flex items-center justify-center gap-1.5 text-xs">
-            {t.poweredBy} <Logo compact className="[&_svg]:size-4" /> Factura
-            Fácil
-          </div>
+          // The people who receive these invoices are often small businesses
+          // themselves, so the free-plan badge is the one organic channel the
+          // product has. utm_* lets the signups be attributed to it.
+          <a
+            href="/?utm_source=invoice&utm_medium=badge&utm_campaign=free_plan"
+            target="_blank"
+            rel="noopener"
+            className="no-print text-muted-foreground hover:text-foreground mt-6 flex flex-col items-center gap-1 text-xs transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              {t.poweredBy} <Logo compact className="[&_svg]:size-4" /> Factura
+              Fácil
+            </span>
+            <span className="font-medium underline underline-offset-2">
+              {t.brandingCta}
+            </span>
+          </a>
         )}
       </div>
     </div>
