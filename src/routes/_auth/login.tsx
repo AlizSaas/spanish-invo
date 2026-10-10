@@ -19,6 +19,7 @@ export const Route = createFileRoute('/_auth/login')({
           'Entra a tu cuenta de Factura Fácil para crear, enviar y cobrar tus facturas y presupuestos.',
       },
       { property: 'og:url', content: pageUrl('/login') },
+      { name: 'robots', content: 'noindex' },
     ],
     links: [{ rel: 'canonical', href: pageUrl('/login') }],
   }),
