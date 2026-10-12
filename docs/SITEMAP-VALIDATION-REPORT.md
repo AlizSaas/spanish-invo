@@ -5,7 +5,7 @@ definitions in `src/routes/`, and the live site.
 
 ## Summary
 
-The sitemap is small (6 URLs) and structurally valid. The real problems were in the
+The sitemap is small (5 URLs) and structurally valid. The real problems were in the
 pages it lists: no canonical links, every page claiming the homepage as its `og:url`,
 and two pages without their own description. All issues below are fixed in the repo;
 they take effect after the next deploy.
@@ -15,10 +15,10 @@ they take effect after the next deploy.
 | Check                                 | Result                                                    |
 | ------------------------------------- | --------------------------------------------------------- |
 | Valid XML                             | Pass                                                      |
-| Under 50,000 URLs per file            | Pass (6)                                                  |
+| Under 50,000 URLs per file            | Pass (5)                                                  |
 | All URLs return 200                   | Pass (checked live)                                       |
 | HTTPS only                            | Pass; http now 301s to https (Always Use HTTPS)           |
-| No `noindex` URLs                     | Pass; `/i/*`, `/api/*` and app pages are not listed       |
+| No `noindex` URLs                     | Pass; `/login`, `/i/*`, `/api/*` and app pages are not listed |
 | No redirected URLs                    | Pass                                                      |
 | No non-canonical URLs                 | Was unverifiable (no canonicals); fixed                   |
 | `<lastmod>` accurate                  | Was identical on every URL; fixed                         |
@@ -43,8 +43,8 @@ they take effect after the next deploy.
   toggle on the same URL. Google indexes the Spanish version only, which matches the
   audience. `hreflang` would only make sense with separate English URLs (for example
   `/en/...`); not worth it now.
-- **Login and signup are listed** because they are public, indexable and have their own
-  content. Drop them if you prefer only the homepage and legal pages in results.
+- **Signup is listed; login is not.** `/signup` is public with its own content. `/login`
+  sets `noindex` (no search value), so it stays out of the sitemap to avoid a mixed signal.
 - **Share links stay out.** `/i/<token>` pages are `noindex` and disallowed in
   `robots.txt` (except for Facebook's preview crawler). Keep it that way.
 
@@ -63,7 +63,8 @@ they take effect after the next deploy.
    `facturafacilapp.com`. The `google-site-verification` TXT record is already in DNS, so
    **Verify** should pass at once.
 3. **Sitemaps** → enter `sitemap.xml` → **Submit**. Status should turn to "Success" with
-   6 discovered pages, usually within a day.
+   5 discovered pages, usually within a day.
 4. **URL Inspection** → `https://facturafacilapp.com/` → **Request indexing**.
 5. After a few days, check **Pages** for anything under "Not indexed". "Alternate page
-   with proper canonical tag" or "Excluded by noindex" for `/i/...` links is expected.
+   with proper canonical tag", "Excluded by noindex" for `/login` and `/i/...` links, and
+   "Page with redirect" for `www.facturafacilapp.com` are all expected.
