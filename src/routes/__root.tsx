@@ -68,6 +68,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { rel: 'preconnect', href: 'https://rsms.me/' },
       { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css' },
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      // Google Search wants a square icon that is a multiple of 48px.
+      {
+        rel: 'icon',
+        href: '/icon-192.png',
+        type: 'image/png',
+        sizes: '192x192',
+      },
+      { rel: 'apple-touch-icon', href: '/icon-192.png' },
     ],
   }),
   shellComponent: RootDocument,
@@ -111,7 +119,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="es" translate="no" suppressHydrationWarning>
       <head>
         {/* Google Ads tag. Keep it the only one: a second tag double-counts conversions. */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18504097095" />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18504097095"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html:

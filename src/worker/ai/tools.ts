@@ -256,7 +256,12 @@ const createDocumentInput = z.object({
   items: z
     .array(
       z.object({
-        description: z.string().trim().min(1).max(500),
+        description: z
+          .string()
+          .trim()
+          .min(1)
+          .max(500)
+          .describe('Written in the document’s language'),
         quantity: z.number().positive().max(999_999),
         unitPrice: z
           .number()
@@ -285,11 +290,15 @@ const createDocumentInput = z.object({
     .trim()
     .max(2000)
     .optional()
-    .describe('Shown on the document. Omit to use the business default notes'),
+    .describe(
+      'Shown on the document, in the document’s language. Omit to use the business default notes',
+    ),
   language: z
     .enum(LANGUAGES)
     .optional()
-    .describe('Omit to use the client’s language'),
+    .describe(
+      'The document’s language. Omit to use the client’s language (or the business default if the client has none)',
+    ),
 })
 
 /**
