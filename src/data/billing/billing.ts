@@ -4,7 +4,12 @@ import { and, eq, gt } from 'drizzle-orm'
 import { settings, subscription } from '@/db/schema'
 import { authMiddleware } from '@/middlewares/dependencies'
 import { DEFAULT_TIMEZONE } from '@/lib/constants'
-import { FREE_LIMITS, countDocumentsThisMonth, getActivePlan } from '@/lib/plan'
+import {
+  FREE_LIMITS,
+  PRO_COMMUNITY_URL,
+  countDocumentsThisMonth,
+  getActivePlan,
+} from '@/lib/plan'
 import { syncSubscriptionFromStripe } from '@/services/stripe-sync'
 
 /** Current plan, subscription dates and this month's usage for the billing card. */
@@ -52,6 +57,8 @@ export const getBillingFn = createServerFn({ method: 'GET' })
       cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
       usage,
       limits: FREE_LIMITS,
+      /** WhatsApp community invite, only sent to Pro accounts. */
+      communityUrl: current.plan === 'pro' ? PRO_COMMUNITY_URL : null,
       /** False in environments without a Stripe key: hide upgrade buttons. */
       stripeConfigured: Boolean(env.STRIPE_SECRET_KEY),
     }

@@ -19,6 +19,13 @@ export const FREE_LIMITS = {
   aiQuestionsPerMonth: 10,
 } as const
 
+/**
+ * Subscriber-only WhatsApp community. Kept server-side and only returned to Pro
+ * accounts; if it leaks, reset the link in WhatsApp and update it here.
+ */
+export const PRO_COMMUNITY_URL =
+  'https://chat.whatsapp.com/JjbbwgzAuOwCWIMrhxg62v'
+
 /** past_due keeps Pro while Stripe retries the card; Stripe moves it to canceled/unpaid on failure. */
 const PRO_STATUSES = ['active', 'trialing', 'past_due']
 
