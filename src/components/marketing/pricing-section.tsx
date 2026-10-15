@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 /** Landing-page pricing: Gratis vs Pro with a monthly/yearly switch. */
 export function PricingSection({ signedIn }: { signedIn: boolean }) {
   const t = useT()
-  const [yearly, setYearly] = useState(true)
+  const [yearly, setYearly] = useState(false)
   const price = yearly ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE
   const period = yearly ? t.pricing.perYear : t.pricing.perMonth
 

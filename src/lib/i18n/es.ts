@@ -688,6 +688,10 @@ export const es = {
     upgraded: '¡Bienvenido a Pro! Ya no tienes límites.',
     processing: 'Confirmando tu pago con Stripe… unos segundos.',
     notConfigured: 'Los pagos todavía no están activados.',
+    communityTitle: 'Comunidad Pro en WhatsApp',
+    communityBody:
+      'Pregunta lo que necesites, comparte ideas y entérate primero de las novedades.',
+    communityJoin: 'Unirme a la comunidad',
   },
   pricing: {
     title: 'Precios simples',

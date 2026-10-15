@@ -117,10 +117,10 @@ export function UpgradeDialog() {
               key={plan.key}
               className={cn(
                 'bg-card relative flex flex-col rounded-2xl border p-5',
-                plan.annual && 'border-primary ring-primary/20 ring-2',
+                !plan.annual && 'border-primary ring-primary/20 ring-2',
               )}
             >
-              {plan.annual && (
+              {!plan.annual && (
                 <span className="bg-primary text-primary-foreground absolute -top-3 left-5 rounded-full px-3 py-1 text-xs font-semibold">
                   {t.pricing.popular}
                 </span>
@@ -139,7 +139,7 @@ export function UpgradeDialog() {
               </p>
               <Button
                 className="mt-4 w-full"
-                variant={plan.annual ? 'default' : 'outline'}
+                variant={plan.annual ? 'outline' : 'default'}
                 onClick={() => checkout(plan.annual)}
                 disabled={busy !== null || !stripeConfigured}
                 title={stripeConfigured ? undefined : t.billing.notConfigured}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { Check, Crown, Sparkles } from 'lucide-react'
+import { Check, Crown, MessageCircle, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -23,7 +23,7 @@ export function PlanCard({ justUpgraded = false }: { justUpgraded?: boolean }) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data, isPending } = useQuery(billingQueryOptions())
-  const [yearly, setYearly] = useState(true)
+  const [yearly, setYearly] = useState(false)
   const [busy, setBusy] = useState<'upgrade' | 'manage' | null>(null)
 
   // Back from Stripe Checkout. Runs once per visit (the dictionary object
@@ -201,6 +201,29 @@ export function PlanCard({ justUpgraded = false }: { justUpgraded?: boolean }) {
           </div>
         )}
       </div>
+
+      {data.communityUrl && (
+        <div className="bg-muted/50 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl p-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <MessageCircle className="text-primary mt-0.5 size-5 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-semibold">{t.billing.communityTitle}</div>
+              <p className="text-muted-foreground text-sm">
+                {t.billing.communityBody}
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="outline">
+            <a
+              href={data.communityUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t.billing.communityJoin}
+            </a>
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

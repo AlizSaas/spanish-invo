@@ -677,6 +677,10 @@ export const en: Dictionary = {
     upgraded: 'Welcome to Pro! No more limits.',
     processing: 'Confirming your payment with Stripe… a few seconds.',
     notConfigured: 'Payments are not enabled yet.',
+    communityTitle: 'Pro community on WhatsApp',
+    communityBody:
+      'Ask anything, share ideas and be the first to hear about new features.',
+    communityJoin: 'Join the community',
   },
   pricing: {
     title: 'Simple pricing',
