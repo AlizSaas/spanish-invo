@@ -147,7 +147,7 @@ export const en: Dictionary = {
     faq: [
       {
         q: 'Is it really free?',
-        a: "Yes. The Free plan doesn't expire and doesn't ask for a card: it includes 3 invoices and 3 estimates a month and 10 questions to the AI assistant. The count resets every month.",
+        a: "Yes. The Free plan doesn't expire and doesn't ask for a card: it includes 1 invoice and 1 estimate a month and 10 questions to the AI assistant. The count resets every month.",
       },
       {
         q: 'How much is Pro and what does it include?',
@@ -653,7 +653,7 @@ export const en: Dictionary = {
     cancelsOn: 'Ends on {date}. You can turn it back on any time.',
     pastDue: 'A payment is pending. Update your card to keep Pro.',
     usage:
-      'This month: {invoices} of {limit} invoices · {estimates} of {limit} estimates',
+      'This month: invoices {invoices}/{limit} · estimates {estimates}/{limit}',
     upgrade: 'Upgrade to Pro',
     manage: 'Manage subscription',
     monthly: 'Monthly',
@@ -663,10 +663,10 @@ export const en: Dictionary = {
     trialNote:
       '14 days free, then renews automatically until you cancel. Cancel anytime.',
     limitReached:
-      'You reached the Free plan limit (3 invoices and 3 estimates a month). Upgrade to Pro to keep going.',
+      'You reached the Free plan limit (1 invoice and 1 estimate a month). Upgrade to Pro to keep going.',
     limitTitle: 'You reached the Free plan limit',
     documentsLimitBody:
-      'The Free plan includes 3 invoices and 3 estimates a month. Pro makes them unlimited, along with the AI assistant.',
+      'The Free plan includes 1 invoice and 1 estimate a month. Pro makes them unlimited, along with the AI assistant.',
     aiLimitBody:
       'The Free plan includes 10 AI assistant questions a month. Pro makes them unlimited, along with your invoices and estimates.',
     billedMonthly: 'Billed monthly',
@@ -687,7 +687,7 @@ export const en: Dictionary = {
     subtitle: 'Start free. Upgrade when your business asks for it.',
     freeName: 'Free',
     freeFeatures: [
-      '3 invoices and 3 estimates a month',
+      '1 invoice and 1 estimate a month',
       'Send by WhatsApp, Messenger, link and PDF',
       'AI assistant: 10 questions a month',
     ],

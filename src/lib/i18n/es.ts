@@ -151,7 +151,7 @@ export const es = {
     faq: [
       {
         q: '¿De verdad es gratis?',
-        a: 'Sí. El plan Gratis no vence y no pide tarjeta: incluye 3 facturas y 3 presupuestos al mes y 10 preguntas al asistente IA. El contador vuelve a cero cada mes.',
+        a: 'Sí. El plan Gratis no vence y no pide tarjeta: incluye 1 factura y 1 presupuesto al mes y 10 preguntas al asistente IA. El contador vuelve a cero cada mes.',
       },
       {
         q: '¿Cuánto cuesta Pro y qué incluye?',
@@ -664,7 +664,7 @@ export const es = {
     cancelsOn: 'Termina el {date}. Puedes reactivarlo cuando quieras.',
     pastDue: 'Hay un pago pendiente. Actualiza tu tarjeta para no perder Pro.',
     usage:
-      'Este mes: {invoices} de {limit} facturas · {estimates} de {limit} presupuestos',
+      'Este mes: facturas {invoices}/{limit} · presupuestos {estimates}/{limit}',
     upgrade: 'Mejorar a Pro',
     manage: 'Administrar suscripción',
     monthly: 'Mensual',
@@ -674,10 +674,10 @@ export const es = {
     trialNote:
       '14 días gratis; después se renueva automáticamente hasta que canceles. Cancela cuando quieras.',
     limitReached:
-      'Llegaste al límite del plan Gratis (3 facturas y 3 presupuestos al mes). Mejora a Pro para seguir.',
+      'Llegaste al límite del plan Gratis (1 factura y 1 presupuesto al mes). Mejora a Pro para seguir.',
     limitTitle: 'Llegaste al límite del plan Gratis',
     documentsLimitBody:
-      'El plan Gratis incluye 3 facturas y 3 presupuestos al mes. Con Pro son ilimitados, igual que el asistente IA.',
+      'El plan Gratis incluye 1 factura y 1 presupuesto al mes. Con Pro son ilimitados, igual que el asistente IA.',
     aiLimitBody:
       'El plan Gratis incluye 10 preguntas al asistente IA al mes. Con Pro son ilimitadas, igual que tus facturas y presupuestos.',
     billedMonthly: 'Se cobra cada mes',
@@ -698,7 +698,7 @@ export const es = {
     subtitle: 'Empieza gratis. Mejora cuando tu negocio lo pida.',
     freeName: 'Gratis',
     freeFeatures: [
-      '3 facturas y 3 presupuestos al mes',
+      '1 factura y 1 presupuesto al mes',
       'Envío por WhatsApp, Messenger, enlace y PDF',
       'Asistente IA: 10 preguntas al mes',
     ],

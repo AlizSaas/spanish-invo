@@ -132,7 +132,7 @@ export const legalEn: LegalContent = {
   },
   terms: {
     title: 'Terms of Service',
-    updated: 'October 7, 2026',
+    updated: 'October 15, 2026',
     intro:
       'These terms govern your use of Factura Fácil (facturafacilapp.com), including the free plan and the paid Pro plan. By creating an account or subscribing you agree to these terms and to our Privacy Policy. If you do not agree, do not use the service.',
     sections: [
@@ -153,7 +153,7 @@ export const legalEn: LegalContent = {
       {
         heading: 'Plans',
         body: [
-          'Free: 3 invoices and 3 estimates per calendar month (counted in your business’s time zone) and 10 AI assistant messages per month. Documents you create on the Free plan show a small “Made with Factura Fácil” badge.',
+          'Free: 1 invoice and 1 estimate per calendar month (counted in your business’s time zone) and 10 AI assistant messages per month. Documents you create on the Free plan show a small “Made with Factura Fácil” badge.',
           'Pro: unlimited invoices and estimates, unlimited use of the AI assistant, no badge and priority support. “Unlimited” means there is no monthly cap. To protect the service, automatic limits on volume and speed still apply (for example, a maximum number of AI messages per hour) and the restrictions on SMS and abuse in these terms. Normal use of a business never reaches them.',
           'We may add, change or remove features. If a change takes away something important that you pay for, we will tell you in advance.',
         ],

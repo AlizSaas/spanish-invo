@@ -16,7 +16,7 @@ Factura Fácil is a phone-first web app for invoices and estimates (quotes), wit
 - **Estimates:** the AI can write an estimate, and one tap turns it into an invoice once the client says yes.
 - **Branding:** the owner's logo and business details appear on every invoice.
 - **Two languages:** each client has their own language, so the same account sends invoices in Spanish or English. The app itself works in both languages.
-- **Free plan:** never expires, no card needed. Includes 3 invoices and 3 estimates per month, plus 10 AI assistant questions per month. The count resets every month.
+- **Free plan:** never expires, no card needed. Includes 1 invoice and 1 estimate per month, plus 10 AI assistant questions per month. The count resets every month.
 - **Pro:** $19.99/month or $199/year (works out to about $16.58/month), plus tax where it applies. Includes unlimited invoices, estimates and AI, removes the "Made with Factura Fácil" badge, and comes with priority WhatsApp support. **14-day free trial** (needs a card, cancel anytime from Settings).
 - **Trades we target:** landscaping and lawn care, house cleaning, mechanics, construction and remodeling, painters, handymen and maintenance, movers.
 - **Support:** support@facturafacilapp.com
