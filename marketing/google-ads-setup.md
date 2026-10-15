@@ -181,7 +181,7 @@ Presupuestos y facturas
 Sin comisiones por cobrar
 Cobra por Zelle o Cash App
 Hecho para tu oficio
-3 facturas gratis al mes
+1 factura gratis al mes
 App de facturas en español
 Escríbelo, sale la factura
 Facturas en tu celular
@@ -195,7 +195,7 @@ entire differentiator and you want it visible every time.
 
 ```
 Cuéntale el trabajo a la IA y ella hace la factura. Mándala por WhatsApp en segundos.
-Gratis: 3 facturas y 3 presupuestos al mes. Sin tarjeta y sin vencimiento. En español.
+Gratis: 1 factura y 1 presupuesto al mes. Sin tarjeta y sin vencimiento. En español.
 Tu logo y tus precios en cada factura. Cobra por Zelle, Cash App, efectivo o cheque.
 Para jardineros, limpieza, mecánicos y construcción. Empieza gratis hoy mismo.
 Sin comisiones. Tu cliente abre un enlace con el PDF y te paga como siempre.

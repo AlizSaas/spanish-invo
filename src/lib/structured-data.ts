@@ -61,7 +61,8 @@ export function landingJsonLd(): string {
       applicationCategory: 'BusinessApplication',
       applicationSubCategory: 'Facturación y presupuestos',
       operatingSystem: 'Web (Android, iPhone, computadora)',
-      browserRequirements: 'Funciona en el navegador. No hay nada que instalar.',
+      browserRequirements:
+        'Funciona en el navegador. No hay nada que instalar.',
       inLanguage: ['es', 'en'],
       isAccessibleForFree: true,
       description: `${l.heroTitle} ${l.heroBody}`,
@@ -90,7 +91,7 @@ export function landingJsonLd(): string {
           'Gratis',
           0,
           null,
-          `${FREE_LIMITS.documentsPerMonth} facturas y ${FREE_LIMITS.documentsPerMonth} presupuestos al mes y ${FREE_LIMITS.aiQuestionsPerMonth} preguntas al asistente de IA. Sin tarjeta y sin vencimiento.`,
+          `${FREE_LIMITS.documentsPerMonth} factura y ${FREE_LIMITS.documentsPerMonth} presupuesto al mes y ${FREE_LIMITS.aiQuestionsPerMonth} preguntas al asistente de IA. Sin tarjeta y sin vencimiento.`,
         ),
         offer(
           'Pro mensual',

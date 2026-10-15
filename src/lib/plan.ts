@@ -14,8 +14,8 @@ import { DEFAULT_TIMEZONE } from '@/lib/constants'
 export type PlanName = 'free' | 'pro'
 
 export const FREE_LIMITS = {
-  /** Per document type (3 invoices and 3 estimates), per calendar month. */
-  documentsPerMonth: 3,
+  /** Per document type (1 invoice and 1 estimate), per calendar month. */
+  documentsPerMonth: 1,
   aiQuestionsPerMonth: 10,
 } as const
 

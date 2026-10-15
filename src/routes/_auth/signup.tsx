@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_auth/signup')({
       {
         name: 'description',
         content:
-          'Crea tu cuenta gratis: 3 facturas y 3 presupuestos al mes sin costo, con un asistente de IA que los prepara por ti y los envía por WhatsApp.',
+          'Crea tu cuenta gratis: 1 factura y 1 presupuesto al mes sin costo, con un asistente de IA que los prepara por ti y los envía por WhatsApp.',
       },
       { property: 'og:url', content: pageUrl('/signup') },
     ],

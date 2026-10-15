@@ -136,7 +136,7 @@ export const legalEs: LegalContent = {
   },
   terms: {
     title: 'Términos de servicio',
-    updated: '7 de octubre de 2026',
+    updated: '15 de octubre de 2026',
     intro:
       'Estos términos regulan el uso de Factura Fácil (facturafacilapp.com), incluidos el plan gratis y el plan Pro de pago. Al crear una cuenta o suscribirte aceptas estos términos y nuestra Política de privacidad. Si no estás de acuerdo, no uses el servicio.',
     sections: [
@@ -157,7 +157,7 @@ export const legalEs: LegalContent = {
       {
         heading: 'Planes',
         body: [
-          'Free: 3 facturas y 3 presupuestos por mes calendario (contados en la zona horaria de tu negocio) y 10 mensajes al asistente de IA por mes. Los documentos que creas en el plan Free muestran una pequeña marca “Hecho con Factura Fácil”.',
+          'Free: 1 factura y 1 presupuesto por mes calendario (contados en la zona horaria de tu negocio) y 10 mensajes al asistente de IA por mes. Los documentos que creas en el plan Free muestran una pequeña marca “Hecho con Factura Fácil”.',
           'Pro: facturas y presupuestos ilimitados, uso ilimitado del asistente de IA, sin marca y soporte prioritario. “Ilimitado” significa que no hay un tope mensual. Para proteger el servicio siguen aplicando límites automáticos de volumen y velocidad (por ejemplo, un máximo de mensajes de IA por hora) y las restricciones sobre SMS y abusos de estos términos. El uso normal de un negocio nunca llega a ellos.',
           'Podemos añadir, cambiar o quitar funciones. Si un cambio te quita algo importante por lo que pagas, te avisaremos con antelación.',
         ],
